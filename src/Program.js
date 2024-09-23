@@ -1,6 +1,6 @@
 /**
  * @file Class entry called in index.js.
- * @version 0.0.1.2
+ * @version 0.0.1.3
  */
 
 package cvmd2html {
@@ -55,10 +55,7 @@ package cvmd2html {
     /// <param name="iconLinkPath">The icon link file path.</param>
     /// <param name="errorLogPath">The error log file path.</param>
     private static function RunIconLink(iconLinkPath: String, errorLogPath: String) {
-      var startInfo: ProcessStartup = ProcessStartup.CreateInstance();
-      startInfo.ShowWindow = ProcessStartup.ShowWindowValues.SW_HIDE;
-      var condition: String = String.Format('ProcessId={0} AND Name="cmd.exe"', Process.Create(String.Format('C:\\Windows\\System32\\cmd.exe /d /c ""{0}" 2> "{1}""', iconLinkPath, errorLogPath), startInfo.LateBoundObject));
-      while (Process.GetInstances(condition).Count) { }
+      Process.WaitForExit(Process.Create(String.Format('C:\\Windows\\System32\\cmd.exe /d /c ""{0}" 2> "{1}""', iconLinkPath, errorLogPath)));
     }
   }
 }
