@@ -38,13 +38,7 @@ package cvmd2html {
     /// <summary>Represents the custom icon link.</summary>
     internal static abstract class IconLink {
 
-      /// <summary>The shortcut link parent full path.</summary>
-      private static var _dirName: String = System.IO.Path.GetTempPath();
-
-      /// <summary>The generated shortcut link file name.</summary>
-      private static var _name: String = Guid.NewGuid() + '.tmp.lnk';
-
-      private static var _path: String = System.IO.Path.Combine(_dirName, _name);
+      private static var _path: String = System.IO.Path.Combine(System.IO.Path.GetTempPath(), Guid.NewGuid() + '.tmp.lnk');
 
       /// <summary>The custom icon shortcut link full path.</summary>
       static function get Path(): String {
