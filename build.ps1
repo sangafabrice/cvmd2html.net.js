@@ -1,4 +1,4 @@
-<#PSScriptInfo .VERSION 0.0.1.2#>
+<#PSScriptInfo .VERSION 0.0.1.3#>
 
 using namespace System.Management.Automation
 [CmdletBinding()]
@@ -59,22 +59,53 @@ Param ()
     which is replaced with '.' in the source code base name <Class.Name>.
     .PARAMETER ClassName
     The specified Management class name.
+    .PARAMETER ClassResPath
+    The compiled resource file path associated with the class.
     #>
     Param (
-      [string] $ClassName
+      [string] $ClassName,
+      [string] $ClassResPath
     )
-    jsc.exe /nologo /target:library /out:$(($MgmtClassPath = "$BinDir\$ClassName.dll")) /define:"$($ClassName.Replace('.', ''))Wim" $AssemblyInfoJS "$SrcDir\$ClassName.js"
+    jsc.exe /nologo /target:library /win32res:$ClassResPath /out:$(($MgmtClassPath = "$BinDir\$ClassName.dll")) /define:"$($ClassName.Replace('.', ''))Wim" $AssemblyInfoJS "$SrcDir\$ClassName.js"
     Return $MgmtClassPath
   }
 
-  # Compile the source code with jsc.exe.
+  Function CompileResource {
+    <#
+    .DESCRIPTION
+    This function compiles the resource file.
+    .NOTES
+    This function must be called after initializing $BinDir.
+    .PARAMETER FileBaseName
+    The base name of the compiled resource file.
+    .PARAMETER Default
+    Specifies that the define symbol should not be set.
+    #>
+    Param (
+      [string] $FileBaseName,
+      [switch] $Default
+    )
+    Start-Process "$PSScriptRoot\rc.exe" -ArgumentList @(
+      '/nologo'
+      '/fo "{0}"' -f ($ResourceFile = "$BinDir\$FileBaseName.res")
+      If (-not $Default) {
+        "/d $($FileBaseName.Replace('.', '').ToUpper())"
+      }
+      '"{0}"' -f "$PSScriptRoot\resource.rc"
+    ) -Wait -NoNewWindow
+    Return $ResourceFile
+  }
+
+  # Compile the source code with jsc.
   $EnvPath = $Env:Path
   $Env:Path = "$Env:windir\Microsoft.NET\Framework$(If ([Environment]::Is64BitOperatingSystem) { '64' })\v4.0.30319\;$Env:Path"
-  jsc.exe /nologo /target:$($DebugPreference -eq 'Continue' ? 'exe':'winexe') /reference:$(ImportMgmtClass 'StdRegProv') /reference:$(ImportMgmtClass 'Win32.Process') /reference:$(ImportTypeLibrary 'C:\Windows\System32\wshom.ocx' 'IWshRuntimeLibrary') /out:$(($ConvertExe = "$BinDir\cvmd2html.exe")) $AssemblyInfoJS "$PSScriptRoot\index.js" "$SrcDir\Program.js" "$SrcDir\ErrorLog.js" "$SrcDir\Package.js" "$SrcDir\Param.js" "$SrcDir\Setup.js"
+  jsc.exe /nologo /target:$($DebugPreference -eq 'Continue' ? 'exe':'winexe') /win32res:$(CompileResource 'cvmd2html') /reference:$(ImportMgmtClass 'Win32.Process' (CompileResource 'Win32.Process' -Default)) /reference:$(ImportTypeLibrary 'C:\Windows\System32\Shell32.dll' 'Shell32') /out:$(($ConvertExe = "$BinDir\cvmd2html.exe")) $AssemblyInfoJS "$PSScriptRoot\index.js" "$SrcDir\Program.js" "$SrcDir\ErrorLog.js" "$SrcDir\Package.js" "$SrcDir\Param.js" "$SrcDir\Setup.js"
   $Env:Path = $EnvPath
 
   If ($LASTEXITCODE -eq 0) {
     Write-Host "Output file $ConvertExe written." @HostColorArgs
     (Get-Item $ConvertExe).VersionInfo | Format-List * -Force
   }
+
+  Remove-Item "$BinDir\*.res" -Recurse -ErrorAction SilentlyContinue
 }

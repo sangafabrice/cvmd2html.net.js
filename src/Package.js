@@ -1,7 +1,7 @@
 /**
  * @file returns information about the resource files used by the project.
  * It also provides a way to manage the custom icon link that can be installed and uninstalled.
- * @version 0.0.1.3
+ * @version 0.0.1.4
  */
 
 package cvmd2html {
@@ -16,9 +16,9 @@ package cvmd2html {
 
     private static var _pwshScriptPath: String = Path.Combine(_resourcePath, 'cvmd2html.ps1');
 
-    private static var _pwshExePath: String = StdRegProv.GetStringValue(null, 'SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\pwsh.exe', null);
+    private static var _pwshExePath: String = Registry.GetValue('HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\pwsh.exe', null, null);
 
-    private static var _menuIconPath: String = Path.Combine(_resourcePath, 'menu.ico');
+    private static var _menuIconPath: String = Program.Path;
 
     /// <summary>The shortcut target powershell script path.</summary>
     internal static function get PwshScriptPath(): String {
@@ -38,7 +38,13 @@ package cvmd2html {
     /// <summary>Represents the custom icon link.</summary>
     internal static abstract class IconLink {
 
-      private static var _path: String = System.IO.Path.Combine(System.IO.Path.GetTempPath(), Guid.NewGuid() + '.tmp.lnk');
+      /// <summary>The shortcut link parent full path.</summary>
+      private static var _dirName: String = System.IO.Path.GetTempPath();
+
+      /// <summary>The generated shortcut link file name.</summary>
+      private static var _name: String = Guid.NewGuid() + '.tmp.lnk';
+
+      private static var _path: String = System.IO.Path.Combine(_dirName, _name);
 
       /// <summary>The custom icon shortcut link full path.</summary>
       static function get Path(): String {
@@ -47,11 +53,12 @@ package cvmd2html {
 
       /// <summary>Create the custom icon link file.</summary>
       /// <param name="markdownPath">The input markdown file path.</param>
-      static function Create(markdownPath: String) {
-        var link: WshShortcut = (new WshShellClass()).CreateShortcut(_path);
-        link.TargetPath = _pwshExePath;
+      static function Create(markdownPath) {
+        File.Create(_path).Close();
+        var link: ShellLinkObject = (new ShellClass()).NameSpace(_dirName).ParseName(_name).GetLink;
+        link.Path = _pwshExePath;
         link.Arguments = String.Format('-ep Bypass -nop -w Hidden -f "{0}" -Markdown "{1}"', _pwshScriptPath, markdownPath);
-        link.IconLocation = _menuIconPath;
+        link.SetIconLocation(_menuIconPath, 0);
         link.Save();
         Marshal.FinalReleaseComObject(link);
         link = null;
