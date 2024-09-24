@@ -1,4 +1,4 @@
-<#PSScriptInfo .VERSION 0.0.1.3#>
+<#PSScriptInfo .VERSION 0.0.1.4#>
 
 using namespace System.Management.Automation
 [CmdletBinding()]
@@ -24,6 +24,7 @@ Param ()
   }
   New-Item $BinDir -ItemType Directory -ErrorAction SilentlyContinue | Out-Null
   Copy-Item "$PSScriptRoot\rsc" -Destination $BinDir -Recurse
+  Copy-Item "$PSScriptRoot\cvmd2html.psd1" -Destination $BinDir
 
   Function ImportTypeLibrary {
     <#
@@ -63,7 +64,7 @@ Param ()
   # Compile the source code with jsc.
   $EnvPath = $Env:Path
   $Env:Path = "$Env:windir\Microsoft.NET\Framework$(If ([Environment]::Is64BitOperatingSystem) { '64' })\v4.0.30319\;$Env:Path"
-  jsc.exe /nologo /target:$($DebugPreference -eq 'Continue' ? 'exe':'winexe') /win32res:$(CompileResource 'cvmd2html') /reference:$(ImportTypeLibrary 'C:\Windows\System32\wbem\wbemdisp.tlb' 'WbemScripting') /reference:$(ImportTypeLibrary 'C:\Windows\System32\wshom.ocx' 'IWshRuntimeLibrary') /out:$(($ConvertExe = "$BinDir\cvmd2html.exe")) "$(($SrcDir = "$PSScriptRoot\src"))\AssemblyInfo.js" "$SrcDir\errorLog.js" "$SrcDir\package.js" "$SrcDir\parameters.js" "$PSScriptRoot\index.js" "$SrcDir\StdRegProv.js" "$SrcDir\setup.js" "$SrcDir\utils.js"
+  jsc.exe /nologo /target:$($DebugPreference -eq 'Continue' ? 'exe':'winexe') /win32res:$(CompileResource 'cvmd2html') /reference:$(ImportTypeLibrary 'C:\Windows\System32\wbem\wbemdisp.tlb' 'WbemScripting') /reference:$(ImportTypeLibrary 'C:\Windows\System32\wshom.ocx' 'IWshRuntimeLibrary') /out:$(($ConvertExe = "$BinDir\cvmd2html.exe")) "$(($SrcDir = "$PSScriptRoot\src"))\AssemblyInfo.js" "$SrcDir\conhost.js" "$SrcDir\msgbox.js" "$SrcDir\package.js" "$SrcDir\parameters.js" "$PSScriptRoot\index.js" "$SrcDir\StdRegProv.js" "$SrcDir\setup.js" "$SrcDir\utils.js"
   $Env:Path = $EnvPath
 
   If ($LASTEXITCODE -eq 0) {
