@@ -1,6 +1,6 @@
 /**
  * @file Class entry called in index.js.
- * @version 0.0.1.6
+ * @version 0.0.1.7
  */
 
 package cvmd2html {
@@ -11,12 +11,8 @@ package cvmd2html {
 
       /** The application execution. */
       if (Param.Markdown) {
-        Package.IconLink.Create(Param.Markdown);
-        if (RunIconLink(Package.IconLink.Path, ErrorLog.Path)) {
-          ErrorLog.Read();
-          ErrorLog.Delete();
-        }
-        Package.IconLink.Delete();
+        ConsoleHost.Create(Package.PwshExePath, Package.PwshScriptPath);
+        ConsoleHost.StartWith(Param.Markdown);
         Quit(0);
       }
 
@@ -50,19 +46,6 @@ package cvmd2html {
     internal static function Quit(exitCode: int) {
       GC.Collect();
       Environment.Exit(exitCode);
-    }
-
-    /// <summary>Execute the icon link.</summary>
-    /// <param name="iconLinkPath">The icon link file path.</param>
-    /// <param name="errorLogPath">The error log file path.</param>
-    /// <returns>The exit status.</returns>
-    private static function RunIconLink(iconLinkPath: String, errorLogPath: String): uint {
-      var appStartInfo: ProcessStartInfo = new ProcessStartInfo('C:\\Windows\\System32\\cmd.exe', String.Format('/d /c ""{0}" 2> "{1}""', iconLinkPath, errorLogPath));
-      appStartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-      with (Process.Start(appStartInfo)) {
-        WaitForExit();
-        return ExitCode;
-      }
     }
   }
 }

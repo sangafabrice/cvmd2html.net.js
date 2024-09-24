@@ -1,8 +1,6 @@
 /**
  * @file Entry point
- * @version 0.0.1.4
+ * @version 0.0.1.5
  */
-
-import cvmd2html;
 
 Program.Main();
