@@ -1,4 +1,4 @@
-<#PSScriptInfo .VERSION 0.0.1#>
+<#PSScriptInfo .VERSION 0.0.1.1#>
 
 [CmdletBinding()]
 Param ()
@@ -16,7 +16,7 @@ Param ()
 @set @BUILD = $(1)
 @set @REVISION = $($_.Sum)
 
-"@ + ((Get-Content $infoFilePath | Select-Object -Skip 4) -join [Environment]::NewLine)
+"@ + (@(Get-Content $infoFilePath | Select-Object -Skip 4).TrimEnd() -join [Environment]::NewLine)
   }
-  Set-Content $infoFilePath $infoContent -NoNewline
+  $infoContent | Out-File $infoFilePath utf8BOM -NoNewline
 }
