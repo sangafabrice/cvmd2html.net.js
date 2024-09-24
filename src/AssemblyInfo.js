@@ -1,35 +1,22 @@
-﻿@cc_on
+/**
+ * @file the imports and the assembly location.
+ * @version 0.0.1.4
+ */
 
-@set @MAJOR = 0
-@set @MINOR = 0
-@set @BUILD = 1
-@set @REVISION = 12
+@cc_on
 
 import System.Runtime.InteropServices;
-import System.Reflection;
 @if (@StdRegProvWim || @Win32ProcessWim)
 import System.Diagnostics;
 import WbemScripting;
 @else
 import System;
+import System.Reflection;
 import System.Reflection.Emit;
 import IWshRuntimeLibrary;
 import Shell32;
 import ROOT.CIMV2;
 import ROOT.CIMV2.WIN32;
-@end
-
-[assembly: AssemblyProduct('CvMd2Html Shortcut')]
-[assembly: AssemblyInformationalVersion(@MAJOR + '.' + @MINOR + '.' + @BUILD + '.' + @REVISION)]
-[assembly: AssemblyCopyright('© 2024 sangafabrice')]
-[assembly: AssemblyCompany('sangafabrice')]
-[assembly: AssemblyVersion(@MAJOR + '.' + @MINOR + '.' + @BUILD + '.' + @REVISION)]
-@if (@StdRegProvWim)
-[assembly: AssemblyTitle('StdRegProv')]
-@elif (@Win32ProcessWim)
-[assembly: AssemblyTitle('Win32_Process')]
-@else
-[assembly: AssemblyTitle('CvMd2Html')]
 @end
 
 @if (@StdRegProvWim)
