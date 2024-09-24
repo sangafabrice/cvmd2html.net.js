@@ -87,7 +87,7 @@ package cvmd2html {
         AppendLine('               Unset  Removes the shortcut menu.');
         AppendLine('                Help  Show the help doc.');
       }
-      MessageBox.Show(helpTextBuilder);
+      MessageBox.Show(helpTextBuilder, MessageBox.HELP);
       Program.Quit(1);
     }
   }
