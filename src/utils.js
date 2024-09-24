@@ -1,6 +1,6 @@
 /**
  * @file separate the utils and setup processes from the application logic.
- * @version 0.0.1.3
+ * @version 0.0.1.4
  */
 
 /** Configuration and settings. */
@@ -38,8 +38,6 @@ function format(formatStr, args) {
 function quit(exitCode) {
   Marshal.FinalReleaseComObject(FileSystem);
   Marshal.FinalReleaseComObject(WshShell);
-  Marshal.FinalReleaseComObject(Scriptlet);
-  Scriptlet = null;
   WshShell = null;
   FileSystem = null;
   try {
