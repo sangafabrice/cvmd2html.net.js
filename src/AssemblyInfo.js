@@ -3,7 +3,7 @@
 @set @MAJOR = 0
 @set @MINOR = 0
 @set @BUILD = 1
-@set @REVISION = 12
+@set @REVISION = 15
 
 import System.Runtime.InteropServices;
 import System.Reflection;
@@ -11,6 +11,7 @@ import System.Reflection;
 import System.Diagnostics;
 import WbemScripting;
 @else
+import Microsoft.JScript;
 import System;
 import System.Reflection.Emit;
 import IWshRuntimeLibrary;
@@ -58,4 +59,6 @@ var AssemblyLocation = Assembly.GetExecutingAssembly().Location;
 var FileSystem = new FileSystemObjectClass();
 var WshShell = new WshShellClass();
 var Shell = new ShellClass();
+
+RequestAdminPrivileges(Convert.ToNativeArray(Environment.GetCommandLineArgs(), Type.GetTypeHandle(new String())).slice(1));
 @end
