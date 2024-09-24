@@ -1,6 +1,6 @@
 /**
  * @file separate the utils and setup processes from the application logic.
- * @version 0.0.1.2
+ * @version 0.0.1.3
  */
 
 /** Configuration and settings. */
@@ -42,6 +42,9 @@ function quit(exitCode) {
   Scriptlet = null;
   WshShell = null;
   FileSystem = null;
+  try {
+    Setup.Dispose();
+  } catch (error) { }
   CollectGarbage();
   Environment.Exit(exitCode);
 }

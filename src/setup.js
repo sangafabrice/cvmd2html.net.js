@@ -1,6 +1,6 @@
 /**
  * @file returns the methods for managing the shortcut menu option: install and uninstall.
- * @version 0.0.1.2
+ * @version 0.0.1.3
  */
 
 /**
@@ -9,8 +9,10 @@
 
 /** @class */
 var Setup = (function() {
+  var HKCU = 0x80000001;
   var VERB_KEY = 'SOFTWARE\\Classes\\SystemFileAssociations\\.md\\shell\\cthtml';
-  var KEY_FORMAT = 'HKCU\\{0}\\';
+  /** @typedef {object} StdRegProv */
+  var StdRegProv = GetObject('winmgmts:StdRegProv');
   return {
     /**
      * Configure the shortcut menu in the registry.
@@ -18,25 +20,20 @@ var Setup = (function() {
      * @param {string} menuIconPath is the shortcut menu icon file path.
      */
     Set: function (paramNoIcon, menuIconPath) {
-      VERB_KEY = format(KEY_FORMAT, VERB_KEY);
-      var COMMAND_KEY = VERB_KEY + 'command\\';
-      var VERBICON_VALUENAME = VERB_KEY + 'Icon';
+      var COMMAND_KEY = VERB_KEY + '\\command';
       var command = format('"{0}" /Markdown:"%1"', AssemblyLocation);
-      WshShell.RegWrite(COMMAND_KEY, command);
-      WshShell.RegWrite(VERB_KEY, 'Convert to &HTML');
+      StdRegProv.CreateKey(HKCU, COMMAND_KEY);
+      StdRegProv.SetStringValue(HKCU, COMMAND_KEY, Missing.Value, command);
+      StdRegProv.SetStringValue(HKCU, VERB_KEY, Missing.Value, 'Convert to &HTML');
+      var iconValueName = 'Icon';
       if (paramNoIcon) {
-        try {
-          WshShell.RegDelete(VERBICON_VALUENAME);
-        } catch (error) { }
+        StdRegProv.DeleteValue(HKCU, VERB_KEY, iconValueName);
       } else {
-        WshShell.RegWrite(VERBICON_VALUENAME, menuIconPath);
+        StdRegProv.SetStringValue(HKCU, VERB_KEY, iconValueName, menuIconPath);
       }
     },
     /** Remove the shortcut menu by removing the verb key and subkeys. */
     Unset: function () {
-      var HKCU = 0x80000001;
-      /** @typedef {object} StdRegProv */
-      var StdRegProv = GetObject('winmgmts:StdRegProv');
       var enumKeyMethod = StdRegProv.Methods_.Item('EnumKey');
       var inParam = enumKeyMethod.InParameters.SpawnInstance_();
       inParam.hDefKey = int(HKCU);
@@ -51,9 +48,7 @@ var Setup = (function() {
               func(format('{0}\\{1}', [key, sNames[index]]));
             }
           }
-          try {
-            WshShell.RegDelete(format(KEY_FORMAT, key));
-          } catch (error) { }
+          StdRegProv.DeleteKey(HKCU, key);
         }
         recursive(key);
       }
@@ -61,10 +56,15 @@ var Setup = (function() {
       deleteVerbKey = null;
       Marshal.FinalReleaseComObject(enumKeyMethod);
       Marshal.FinalReleaseComObject(inParam);
-      Marshal.FinalReleaseComObject(StdRegProv);
-      StdRegProv = null;
       enumKeyMethod = null;
       inParam = null;
+    },
+    /**
+     * Destroy the object.
+     */
+    Dispose: function () {
+      Marshal.FinalReleaseComObject(StdRegProv);
+      StdRegProv = null;
     }
   }
 })();
