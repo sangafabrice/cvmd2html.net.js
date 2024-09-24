@@ -1,6 +1,6 @@
 /**
  * @file returns the method to convert from markdown to html.
- * @version 0.0.1.3
+ * @version 0.0.1.4
  */
 
 /**
@@ -53,20 +53,18 @@ var CreateConverter = (function() {
         '<head>' +
           '<meta charset="UTF-8" />' +
           '<meta http-equiv="X-UA-Compatible" content="IE=edge" />' +
+          '<script type="text/javascript">' +
+            GetContent(jsLibraryPath) +
+            'function convertMarkdown() {' +
+              'document.body.innerHTML = (new showdown.Converter()).makeHtml(document.body.innerText);' +
+            '}' +
+          '</script>' +
         '</head>' +
         '<body>' +
         '</body>' +
         '</html>'
       );
       document.close();
-      // Add the script element that loads the library.
-      var scriptElement = document.createElement('script');
-      scriptElement.type = 'text/javascript';
-      scriptElement.text = GetContent(jsLibraryPath) +
-        'function convertMarkdown() {' +
-          'document.body.innerHTML = (new showdown.Converter()).makeHtml(document.body.innerText);' +
-        '}';
-      document.getElementsByTagName('head')(0).appendChild(scriptElement);
       document.body.innerText = markdownContent;
       document.parentWindow.execScript('convertMarkdown()', 'javascript');
       try {
@@ -75,10 +73,6 @@ var CreateConverter = (function() {
         if (document) {
           Marshal.FinalReleaseComObject(document);
           document = null;
-        }
-        if (scriptElement) {
-          Marshal.FinalReleaseComObject(scriptElement);
-          scriptElement = null;
         }
       }
     }
