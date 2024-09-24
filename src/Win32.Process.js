@@ -1,11 +1,11 @@
 /**
  * @file Process WMI class as inspired by mgmclassgen.exe.
- * @version 0.0.1.4
+ * @version 0.0.1.6
  */
 
-package ROOT.CIMV2.WIN32 {
+package cvmd2html {
 
-  abstract class Process {
+  internal abstract class Process {
 
     /// <remarks>
     /// Initializing the Process.CurrentDirectory causes an issue.
@@ -26,14 +26,11 @@ package ROOT.CIMV2.WIN32 {
     /// <summary>Wait for the child process exit.</summary>
     /// <param name="ParentProcessId">The parent process identifier.</param>
     static function WaitForChildExit(ParentProcessId: uint) {
-      var wmiQuery = 'SELECT * FROM Win32_Process WHERE Name="pwsh.exe" AND ParentProcessId=' + ParentProcessId;
-      var getProcessCount: Function = function() {
-        return (new ManagementObjectSearcher(wmiQuery)).Get().Count;
-      }
-      // Wait for the process to start.
-      while (getProcessCount() == 0) { }
+      // The process termination event query.
+      // Select the process whose parent is the intermediate process used for executing the link.
+      var wmiQuery = 'SELECT * FROM __InstanceDeletionEvent WITHIN 0.1 WHERE TargetInstance ISA "Win32_Process" AND TargetInstance.Name="pwsh.exe" AND TargetInstance.ParentProcessId=' + ParentProcessId;
       // Wait for the process to exit.
-      while (getProcessCount()) { }
+      (new ManagementEventWatcher(wmiQuery)).WaitForNextEvent();
     }
   }
 }
