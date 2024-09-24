@@ -1,4 +1,4 @@
-<#PSScriptInfo .VERSION 0.0.1.3#>
+<#PSScriptInfo .VERSION 0.0.1.4#>
 
 using namespace System.Management.Automation
 [CmdletBinding()]
@@ -78,19 +78,13 @@ Param ()
     This function must be called after initializing $BinDir.
     .PARAMETER FileBaseName
     The base name of the compiled resource file.
-    .PARAMETER Default
-    Specifies that the define symbol should not be set.
     #>
     Param (
-      [string] $FileBaseName,
-      [switch] $Default
+      [string] $FileBaseName
     )
     Start-Process "$PSScriptRoot\rc.exe" -ArgumentList @(
       '/nologo'
       '/fo "{0}"' -f ($ResourceFile = "$BinDir\$FileBaseName.res")
-      If (-not $Default) {
-        "/d $($FileBaseName.Replace('.', '').ToUpper())"
-      }
       '"{0}"' -f "$PSScriptRoot\resource.rc"
     ) -Wait -NoNewWindow
     Return $ResourceFile
@@ -99,7 +93,7 @@ Param ()
   # Compile the source code with jsc.
   $EnvPath = $Env:Path
   $Env:Path = "$Env:windir\Microsoft.NET\Framework$(If ([Environment]::Is64BitOperatingSystem) { '64' })\v4.0.30319\;$Env:Path"
-  jsc.exe /nologo /target:$($DebugPreference -eq 'Continue' ? 'exe':'winexe') /win32res:$(CompileResource 'cvmd2html') /reference:$(ImportMgmtClass 'Win32.Process' (CompileResource 'Win32.Process' -Default)) /reference:$(ImportTypeLibrary 'C:\Windows\System32\Shell32.dll' 'Shell32') /out:$(($ConvertExe = "$BinDir\cvmd2html.exe")) $AssemblyInfoJS "$PSScriptRoot\index.js" "$SrcDir\Program.js" "$SrcDir\ErrorLog.js" "$SrcDir\Package.js" "$SrcDir\Param.js" "$SrcDir\Setup.js"
+  jsc.exe /nologo /target:$($DebugPreference -eq 'Continue' ? 'exe':'winexe') /win32res:$(CompileResource 'cvmd2html') /reference:$(ImportTypeLibrary 'C:\Windows\System32\Shell32.dll' 'Shell32') /out:$(($ConvertExe = "$BinDir\cvmd2html.exe")) $AssemblyInfoJS "$PSScriptRoot\index.js" "$SrcDir\Win32.Process.js" "$SrcDir\Program.js" "$SrcDir\ErrorLog.js" "$SrcDir\Package.js" "$SrcDir\Param.js" "$SrcDir\Setup.js"
   $Env:Path = $EnvPath
 
   If ($LASTEXITCODE -eq 0) {
