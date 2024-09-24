@@ -1,4 +1,4 @@
-<#PSScriptInfo .VERSION 0.0.1#>
+<#PSScriptInfo .VERSION 0.0.1.1#>
 
 [CmdletBinding()]
 Param ()
@@ -6,6 +6,7 @@ Param ()
 & {
   Get-ChildItem "$PSScriptRoot\*.js","$PSScriptRoot\*.ps1","$PSScriptRoot\.gitignore" -Recurse | ForEach-Object {
     $content = @(Get-Content $_.FullName).TrimEnd() -join [Environment]::NewLine
-    Set-Content $_.FullName $content -NoNewLine
+    $bytes = Get-Content $_.FullName -AsByteStream -ReadCount 3 -TotalCount 3
+    $content | Out-File $_.FullName -Encoding ($bytes[0] -eq 0xEF -and $bytes[1] -eq 0xBB -and $bytes[2] -eq 0xBF ? 'utf8BOM':'utf8') -NoNewline
   }
 }
