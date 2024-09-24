@@ -1,6 +1,6 @@
 /**
  * @file returns the parsed parameters.
- * @version 0.0.1
+ * @version 0.0.1.1
  */
 
 /**
@@ -61,6 +61,6 @@ var Param = (function (args) {
   helpText += '              NoIcon  Specifies that the icon is not configured.\n';
   helpText += '               Unset  Removes the shortcut menu.\n';
   helpText += '                Help  Show the help doc.\n';
-  (new ActiveXObject('WScript.Shell')).Popup(helpText);
+  WshShell.Popup(helpText);
   quit(1);
 })(Environment.GetCommandLineArgs());
