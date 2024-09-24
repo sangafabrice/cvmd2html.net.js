@@ -1,4 +1,4 @@
-<#PSScriptInfo .VERSION 0.0.1.2#>
+<#PSScriptInfo .VERSION 0.0.1.3#>
 
 using namespace System.Management.Automation
 [CmdletBinding()]
@@ -24,14 +24,13 @@ Param ()
   }
   New-Item $BinDir -ItemType Directory -ErrorAction SilentlyContinue | Out-Null
   Copy-Item "$PSScriptRoot\rsc" -Destination $BinDir -Recurse
-  Copy-Item "$PSScriptRoot\cvmd2html.psd1" -Destination $BinDir
 
   # Set the windows resources file with the resource compiler.
   & "$PSScriptRoot\rc.exe" /nologo /fo $(($ResFile = "$BinDir\cvmd2html.res")) "$PSScriptRoot\resource.rc"
   # Compile the source code with jsc.exe.
   $EnvPath = $Env:Path
   $Env:Path = "$Env:windir\Microsoft.NET\Framework$(If ([Environment]::Is64BitOperatingSystem) { '64' })\v4.0.30319\;$Env:Path"
-  jsc.exe /nologo /target:$($DebugPreference -eq 'Continue' ? 'exe':'winexe') /win32res:$ResFile /out:$(($ConvertExe = "$BinDir\cvmd2html.exe")) "$(($SrcDir = "$PSScriptRoot\src"))\AssemblyInfo.js" "$SrcDir\conhost.js" "$SrcDir\msgbox.js" "$SrcDir\package.js" "$SrcDir\parameters.js" "$PSScriptRoot\index.js" "$SrcDir\setup.js" "$SrcDir\utils.js"
+  jsc.exe /nologo /target:$($DebugPreference -eq 'Continue' ? 'exe':'winexe') /win32res:$ResFile /out:$(($ConvertExe = "$BinDir\cvmd2html.exe")) "$(($SrcDir = "$PSScriptRoot\src"))\AssemblyInfo.js" "$SrcDir\converter.js" "$SrcDir\msgbox.js" "$SrcDir\package.js" "$SrcDir\parameters.js" "$PSScriptRoot\index.js" "$SrcDir\setup.js" "$SrcDir\utils.js"
   $Env:Path = $EnvPath
 
   If ($LASTEXITCODE -eq 0) {
