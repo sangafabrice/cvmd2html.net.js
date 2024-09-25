@@ -1,6 +1,6 @@
 /**
  * @file returns information about the resource files used by the project.
- * @version 0.0.1.7
+ * @version 0.0.1.8
  */
 
 /**
@@ -8,6 +8,7 @@
  * @property {string} Root is the project root path.
  * @property {string} ResourcePath is the project resources directory path.
  * @property {string} MenuIconPath is the shortcut menu icon path.
+ * @property {string} HtmlLibraryPath is the html file that embeds the JS library path.
  * @property {string} JsLibraryPath is the showdown.js library path.
  */
 
@@ -18,6 +19,7 @@ var Package = (function() {
     MenuIconPath: AssemblyLocation
   };
   resource.ResourcePath = FileSystem.BuildPath(resource.Root, 'rsc');
+  resource.HtmlLibraryPath = FileSystem.BuildPath(resource.ResourcePath, 'showdown.html');
   resource.JsLibraryPath = FileSystem.BuildPath(resource.ResourcePath, 'showdown.min.js');
   return resource;
 })();
