@@ -1,6 +1,6 @@
 /**
  * @file returns the method to convert from markdown to html.
- * @version 0.0.1.9
+ * @version 0.0.1.10
  */
 
 package cvmd2html {
@@ -23,7 +23,6 @@ package cvmd2html {
     private static function ConvertToHtml(markdownContent: String): String {
       // Build the HTML document that will load the showdown.js library.
       with (new WebBrowser()) {
-        ScriptErrorsSuppressed = true;
         Navigate('about:blank');
         var document = Document;
       }
