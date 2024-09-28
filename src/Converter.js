@@ -39,7 +39,7 @@ package cvmd2html {
         Navigate('about:blank');
         var document = Document;
       }
-      document.Write(String.Format(GetContent(_htmlLibraryPath), GetContent(_jsLibraryPath)));
+      document.Write(String.Format(GetContent(_htmlLibraryPath), _jsLibraryPath));
       return document.InvokeScript('convertMarkdown', Object[]([markdownContent]));
     }
 
