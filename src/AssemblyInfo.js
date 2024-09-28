@@ -1,6 +1,6 @@
 /**
  * @file the imports and the assembly location.
- * @version 0.0.1.7
+ * @version 0.0.1.8
  */
 
 import System.Runtime.InteropServices;
@@ -11,6 +11,7 @@ import System.Reflection;
 import System.Reflection.Emit;
 import IWshRuntimeLibrary;
 import mshtml;
+import ADODB;
 import ROOT.CIMV2;
 
 var AssemblyLocation = Assembly.GetExecutingAssembly().Location;
