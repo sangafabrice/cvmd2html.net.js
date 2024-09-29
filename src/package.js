@@ -1,7 +1,7 @@
 /**
  * @file returns information about the resource files used by the project.
  * It also provides a way to manage the custom icon link that can be installed and uninstalled.
- * @version 0.0.1.2
+ * @version 0.0.1.3
  */
 
 /**
@@ -22,6 +22,7 @@ var Package = (function() {
   var fs = new ActiveXObject('Scripting.FileSystemObject');
   var resource = {
     Root: fs.GetParentFolderName(AssemblyLocation),
+    MenuIconPath: AssemblyLocation,
     PwshExePath: (function() {
       var registry = GetObject('winmgmts:StdRegProv');
       var getStringValueMethod = registry.Methods_.Item('GetStringValue');
@@ -49,7 +50,6 @@ var Package = (function() {
   }
   resource.ResourcePath = fs.BuildPath(resource.Root, 'rsc');
   resource.PwshScriptPath = fs.BuildPath(resource.ResourcePath, 'cvmd2html.ps1');
-  resource.MenuIconPath = fs.BuildPath(resource.ResourcePath, 'menu.ico');
   resource.IconLink = {
     DirName: (new ActiveXObject('WScript.Shell')).ExpandEnvironmentStrings('%TEMP%'),
     Name: (new ActiveXObject('Scriptlet.TypeLib')).Guid.substr(1, 36).toLowerCase() + '.tmp.lnk',
