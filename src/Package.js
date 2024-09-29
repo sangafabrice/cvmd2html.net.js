@@ -1,7 +1,7 @@
 /**
  * @file returns information about the resource files used by the project.
  * It also provides a way to manage the custom icon link that can be installed and uninstalled.
- * @version 0.0.1.4
+ * @version 0.0.1.5
  */
 
 package cvmd2html {
@@ -18,7 +18,7 @@ package cvmd2html {
 
     private static var _pwshExePath: String = Registry.GetValue('HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\pwsh.exe', null, null);
 
-    private static var _menuIconPath: String = Path.Combine(_resourcePath, 'menu.ico');
+    private static var _menuIconPath: String = Program.Path;
 
     /// <summary>The shortcut target powershell script path.</summary>
     internal static function get PwshScriptPath(): String {
