@@ -11,8 +11,8 @@ package cvmd2html {
 
       /** The application execution. */
       if (Param.Markdown) {
-        ConsoleHost.Create(Package.PwshExePath, Package.PwshScriptPath);
-        ConsoleHost.StartWith(Param.Markdown);
+        Converter.Create(Package.HtmlLibraryPath, Package.JsLibraryPath);
+        Converter.ConvertFrom(Param.Markdown);
         Quit(0);
       }
 
