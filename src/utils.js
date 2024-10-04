@@ -1,6 +1,6 @@
 /**
  * @file separate the utils and setup processes from the application logic.
- * @version 0.0.1.4
+ * @version 0.0.1.5
  */
 
 /** Configuration and settings. */
@@ -37,8 +37,6 @@ function format(formatStr, args) {
  */
 function quit(exitCode) {
   Marshal.FinalReleaseComObject(StdRegProv);
-  Marshal.FinalReleaseComObject(WshShell);
-  WshShell = null;
   StdRegProv = null;
   CollectGarbage();
   Environment.Exit(exitCode);
