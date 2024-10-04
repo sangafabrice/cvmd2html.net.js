@@ -1,6 +1,6 @@
 /**
  * @file the imports and the assembly location.
- * @version 0.0.1.5
+ * @version 0.0.1.6
  */
 
 import System;
@@ -11,7 +11,5 @@ import Microsoft.VisualBasic;
 
 var AssemblyLocation = Assembly.GetExecutingAssembly().Location;
 
-/** @typedef {object} WshShell */
-var WshShell = Interaction.CreateObject('WScript.Shell');
 /** @typedef {object} StdRegProv */
 var StdRegProv = Interaction.GetObject('winmgmts:StdRegProv');
