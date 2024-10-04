@@ -1,6 +1,6 @@
 /**
  * @file separate the utils and setup processes from the application logic.
- * @version 0.0.1.2
+ * @version 0.0.1.3
  */
 
 /** Configuration and settings. */
@@ -38,8 +38,8 @@ function format(formatStr, args) {
 function quit(exitCode) {
   Marshal.FinalReleaseComObject(Scriptlet);
   Marshal.FinalReleaseComObject(StdRegProv);
-  Marshal.FinalReleaseComObject(SWbemService);
-  SWbemService = null;
+  Marshal.FinalReleaseComObject(WshShell);
+  WshShell = null;
   StdRegProv = null;
   Scriptlet = null;
   CollectGarbage();
