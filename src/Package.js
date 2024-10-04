@@ -1,6 +1,6 @@
 /**
  * @file returns information about the resource files used by the project.
- * @version 0.0.1.6
+ * @version 0.0.1.7
  */
 
 package cvmd2html {
@@ -10,20 +10,23 @@ package cvmd2html {
     /// <summary>The project root path.</summary>
     private static var _root: String = System.AppContext.BaseDirectory;
 
-    private static var _pwshScriptPath: String = Path.Combine(_root, 'cvmd2html.psd1');
+    /// <summary>The project resources directory path.</summary>
+    private static var _resourcePath: String = Path.Combine(_root, 'rsc');
 
-    private static var _pwshExePath: String = Registry.GetValue('HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\pwsh.exe', null, null);
+    private static var _htmlLibraryPath: String = Path.Combine(_resourcePath, 'showdown.html');
+
+    private static var _jsLibraryPath: String = Path.Combine(_resourcePath, 'showdown.min.js');
 
     private static var _menuIconPath: String = Program.Path;
 
-    /// <summary>The shortcut target powershell script path.</summary>
-    internal static function get PwshScriptPath(): String {
-      return _pwshScriptPath;
+    /// <summary>The html file that embeds the JS library path.</summary>
+    internal static function get HtmlLibraryPath(): String {
+      return _htmlLibraryPath;
     }
 
-    /// <summary>The powershell core runtime path.</summary>
-    internal static function get PwshExePath(): String {
-      return _pwshExePath;
+    /// <summary>The showdown.js library path.</summary>
+    internal static function get JsLibraryPath(): String {
+      return _jsLibraryPath;
     }
 
     /// <summary>The shortcut menu icon path.</summary>

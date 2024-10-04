@@ -1,6 +1,6 @@
 /**
  * @file Class entry called in index.js.
- * @version 0.0.1.7
+ * @version 0.0.1.8
  */
 
 package cvmd2html {
@@ -11,8 +11,8 @@ package cvmd2html {
 
       /** The application execution. */
       if (Param.Markdown) {
-        ConsoleHost.Create(Package.PwshExePath, Package.PwshScriptPath);
-        ConsoleHost.StartWith(Param.Markdown);
+        Converter.Create(Package.HtmlLibraryPath, Package.JsLibraryPath);
+        Converter.ConvertFrom(Param.Markdown);
         Quit(0);
       }
 
