@@ -1,4 +1,4 @@
-<#PSScriptInfo .VERSION 0.0.1.3#>
+<#PSScriptInfo .VERSION 0.0.1.4#>
 
 using namespace System.Management.Automation
 [CmdletBinding()]
@@ -25,9 +25,6 @@ Param ()
   New-Item $BinDir -ItemType Directory -ErrorAction SilentlyContinue | Out-Null
   Copy-Item "$PSScriptRoot\rsc" -Destination $BinDir -Recurse
 
-  $SrcDir = "$PSScriptRoot\src"
-  $AssemblyInfoJS = "$SrcDir\AssemblyInfo.js"
-
   Function ImportTypeLibrary {
     <#
     .DESCRIPTION
@@ -47,30 +44,10 @@ Param ()
     Return $InteropLibPath
   }
 
-  Function ImportMgmtClass {
-    <#
-    .DESCRIPTION
-    This function compiles a Management Class' source code to dll libraries.
-    .NOTES
-    This function must be called after initializing $SrcDir and $AssemblyInfoJS.
-    It must also be called after the csc.exe path is added to PATH environment variable.
-    .\mgmtclassgen.exe <Class_Name> /l cs /n root\cimv2 /p .\src\<Class.Name>.cs
-    <Class_Name> means the name of the class may have an underscore '_'
-    which is replaced with '.' in the source code base name <Class.Name>.
-    .PARAMETER ClassName
-    The specified Management class name.
-    #>
-    Param (
-      [string] $ClassName
-    )
-    jsc.exe /nologo /target:library /out:$(($MgmtClassPath = "$BinDir\$ClassName.dll")) /define:"$($ClassName.Replace('.', ''))Wim" $AssemblyInfoJS "$SrcDir\$ClassName.js"
-    Return $MgmtClassPath
-  }
-
   # Compile the source code with jsc.exe.
   $EnvPath = $Env:Path
   $Env:Path = "$Env:windir\Microsoft.NET\Framework$(If ([Environment]::Is64BitOperatingSystem) { '64' })\v4.0.30319\;$Env:Path"
-  jsc.exe /nologo /target:$($DebugPreference -eq 'Continue' ? 'exe':'winexe') /reference:$(ImportMgmtClass 'StdRegProv') /reference:$(ImportTypeLibrary 'C:\Windows\System32\wshom.ocx' 'IWshRuntimeLibrary') /out:$(($ConvertExe = "$BinDir\cvmd2html.exe")) $AssemblyInfoJS "$PSScriptRoot\index.js" "$SrcDir\Program.js" "$SrcDir\ErrorLog.js" "$SrcDir\Package.js" "$SrcDir\Param.js" "$SrcDir\Setup.js"
+  jsc.exe /nologo /target:$($DebugPreference -eq 'Continue' ? 'exe':'winexe') /reference:$(ImportTypeLibrary 'C:\Windows\System32\wshom.ocx' 'IWshRuntimeLibrary') /out:$(($ConvertExe = "$BinDir\cvmd2html.exe")) "$(($SrcDir = "$PSScriptRoot\src"))\AssemblyInfo.js" "$PSScriptRoot\index.js" "$SrcDir\Program.js" "$SrcDir\ErrorLog.js" "$SrcDir\Package.js" "$SrcDir\Param.js" "$SrcDir\Setup.js"
   $Env:Path = $EnvPath
 
   If ($LASTEXITCODE -eq 0) {
