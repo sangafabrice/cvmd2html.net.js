@@ -35,34 +35,36 @@ package cvmd2html {
       return _menuIconPath;
     }
 
-    /// <summary>Represents the custom icon link.</summary>
-    internal static abstract class IconLink {
+    internal static var IconLink: IconLinkType = new IconLinkType();
+  }
+  
+  /// <summary>Represents the custom icon link.</summary>
+  internal class IconLinkType {
 
-      private static var _path: String = System.IO.Path.Combine(System.IO.Path.GetTempPath(), Guid.NewGuid() + '.tmp.lnk');
+    private static var _path: String = System.IO.Path.Combine(System.IO.Path.GetTempPath(), Guid.NewGuid() + '.tmp.lnk');
 
-      /// <summary>The custom icon shortcut link full path.</summary>
-      static function get Path(): String {
-        return _path;
-      }
+    /// <summary>The custom icon shortcut link full path.</summary>
+    internal function get Path(): String {
+      return _path;
+    }
 
-      /// <summary>Create the custom icon link file.</summary>
-      /// <param name="markdownPath">The input markdown file path.</param>
-      static function Create(markdownPath: String) {
-        var link: WshShortcut = (new WshShellClass()).CreateShortcut(_path);
-        link.TargetPath = _pwshExePath;
-        link.Arguments = String.Format('-ep Bypass -nop -w Hidden -f "{0}" -Markdown "{1}"', _pwshScriptPath, markdownPath);
-        link.IconLocation = _menuIconPath;
-        link.Save();
-        Marshal.FinalReleaseComObject(link);
-        link = null;
-      }
+    /// <summary>Create the custom icon link file.</summary>
+    /// <param name="markdownPath">The input markdown file path.</param>
+    internal function Create(markdownPath: String) {
+      var link: WshShortcut = (new WshShellClass()).CreateShortcut(_path);
+      link.TargetPath = Package.PwshExePath;
+      link.Arguments = String.Format('-ep Bypass -nop -w Hidden -f "{0}" -Markdown "{1}"', Package.PwshScriptPath, markdownPath);
+      link.IconLocation = Package.MenuIconPath;
+      link.Save();
+      Marshal.FinalReleaseComObject(link);
+      link = null;
+    }
 
-      /// <summary>Delete the custom icon link file.</summary>
-      static function Delete() {
-        try {
-          File.Delete(_path);
-        } catch (error) { }
-      }
+    /// <summary>Delete the custom icon link file.</summary>
+    internal function Delete() {
+      try {
+        File.Delete(_path);
+      } catch (error) { }
     }
   }
 }
