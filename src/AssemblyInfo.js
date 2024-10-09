@@ -1,6 +1,6 @@
 ﻿/**
  * @file the imports and the assembly location.
- * @version 0.0.1.6
+ * @version 0.0.1.7
  */
 
 import System.Management;
@@ -12,5 +12,6 @@ import System.Text;
 import System.Drawing;
 import System.Windows.Forms;
 import System.Runtime.InteropServices;
+import System.Threading;
 import Microsoft.Win32;
 import Shell32;
