@@ -1,6 +1,6 @@
 /**
  * @file Process WMI class as inspired by mgmclassgen.exe.
- * @version 0.0.1.6
+ * @version 0.0.1.7
  */
 
 package cvmd2html {
@@ -30,7 +30,26 @@ package cvmd2html {
       // Select the process whose parent is the intermediate process used for executing the link.
       var wmiQuery = 'SELECT * FROM __InstanceDeletionEvent WITHIN 0.1 WHERE TargetInstance ISA "Win32_Process" AND TargetInstance.Name="pwsh.exe" AND TargetInstance.ParentProcessId=' + ParentProcessId;
       // Wait for the process to exit.
-      (new ManagementEventWatcher(wmiQuery)).WaitForNextEvent();
+      var processWatcher: ManagementEventWatcher = new ManagementEventWatcher(wmiQuery);
+      var processDeletionHandler: ProcessDeletionHandler = new ProcessDeletionHandler();
+      processWatcher.add_EventArrived(processDeletionHandler.OnHasExited);
+      processWatcher.Start();
+      while (!processDeletionHandler.IsComplete) {
+        Thread.Sleep(1);
+      }
+    }
+
+    /// <summary>Defines a process delection handler.</summary>
+    private static class ProcessDeletionHandler {
+
+      /// <summary>Specifies that the watcher is complete.</summary>
+      var IsComplete: Boolean = false;
+
+      /// <summary>The process deletion event handler.</summary>
+      function OnHasExited(sender: Object, e: EventArrivedEventArgs) {
+        IsComplete = true;
+        sender.Stop();
+      }
     }
   }
 }
