@@ -53,12 +53,11 @@ package cvmd2html {
     private static function RunRunspace(pwshScriptPath: String, markdownPath: String) {
       var runspace: Runspace = RunspaceFactory.CreateRunspace();
       runspace.Open();
-      var powershell: PowerShell = PowerShell.Create();
-      powershell.Runspace = runspace;
+      var pipeline: Pipeline = runspace.CreatePipeline();
       // Execute the target PowerShell script with the markdown path argument in the runspace.
-      var asyncresult: IAsyncResult = powershell.AddCommand(pwshScriptPath).AddParameter('Markdown', markdownPath).BeginInvoke();
+      pipeline.Commands.AddScript(String.Format('& "{0}" -Markdown "{1}"', pwshScriptPath, markdownPath));
       try {
-        powershell.EndInvoke(asyncresult);
+        pipeline.Invoke();
       } catch (error: ParameterBindingException) {
         var errorText: StringBuilder = new StringBuilder(error.Message);
         // Handle validation error on the MarkdownPath parameter.
