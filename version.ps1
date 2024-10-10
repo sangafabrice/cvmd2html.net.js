@@ -1,4 +1,4 @@
-<#PSScriptInfo .VERSION 0.0.1.5#>
+<#PSScriptInfo .VERSION 0.0.1.6#>
 
 [CmdletBinding()]
 Param ()
@@ -14,13 +14,5 @@ Param ()
 #define VER_VERSION_STR "0.0.1.$($_.Sum)"
 
 "@ | Out-File "$PSScriptRoot\version.h" -NoNewline
-@"
-@{
-  RootModule = 'rsc\cvmd2html.psm1'
-  ModuleVersion = '0.0.1.$($_.Sum)'
-  CompatiblePSEditions = 'Core'
-  PowerShellVersion = '6.1'
-}
-"@ | Out-File "$PSScriptRoot\cvmd2html.psd1" -NoNewline
   }
 }

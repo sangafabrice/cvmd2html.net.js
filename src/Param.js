@@ -1,6 +1,6 @@
 /**
  * @file returns the parsed parameters.
- * @version 0.0.1.3
+ * @version 0.0.1.4
  */
 
 package cvmd2html {
@@ -88,7 +88,7 @@ package cvmd2html {
         AppendLine('               Unset  Removes the shortcut menu.');
         AppendLine('                Help  Show the help doc.');
       }
-      MessageBox.Show(helpTextBuilder, MessageBox.HELP);
+      MessageBox.Show(helpTextBuilder);
       Program.Quit(1);
     }
   }
