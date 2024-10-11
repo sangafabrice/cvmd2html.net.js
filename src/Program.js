@@ -1,6 +1,6 @@
 /**
  * @file Class entry called in index.js.
- * @version 0.0.1.8
+ * @version 0.0.1.9
  */
 
 package cvmd2html {
@@ -56,28 +56,35 @@ package cvmd2html {
       var pipeline: Pipeline = runspace.CreatePipeline();
       // Execute the target PowerShell script with the markdown path argument in the runspace.
       pipeline.Commands.AddScript(String.Format('& "{0}" -Markdown "{1}"', pwshScriptPath, markdownPath));
+      pipeline.InvokeAsync();
+      while (System.Array.BinarySearch(System.Array([PipelineState.NotStarted, PipelineState.Running, PipelineState.Running]), pipeline.PipelineStateInfo.State) >= 0) {
+        System.Threading.Thread.Sleep(1);
+      }
       try {
-        pipeline.Invoke();
-      } catch (error: ParameterBindingException) {
-        var errorText: StringBuilder = new StringBuilder(error.Message);
-        // Handle validation error on the MarkdownPath parameter.
-        if (!String.Compare(error.ParameterName, 'MarkdownPath', true) && String(errorText).StartsWith('Cannot Validate', StringComparison.InvariantCultureIgnoreCase)) {
-          var errorTextSegments: String[] = String(errorText).Split(String[](['. ']), StringSplitOptions.RemoveEmptyEntries);
-          errorText.Clear();
-          errorText.Append(errorTextSegments[0] + '. ');
-          var errorTextEnd: String = errorTextSegments[errorTextSegments.length - 1];
-          var textFormat: String;
-          if (errorTextEnd.StartsWith('Supply an argument that matches', StringComparison.InvariantCultureIgnoreCase)) {
-            textFormat = 'The extension of "{0}" is invalid. ".md" is required.';
-          } else if (errorTextEnd.StartsWith('Determine why the validation script failed', StringComparison.InvariantCultureIgnoreCase)) {
-            textFormat = 'The input file "{0}" is not found.';
+        if (pipeline.PipelineStateInfo.State == PipelineState.Failed) {
+        (function() {
+          var error = pipeline.PipelineStateInfo.Reason;
+          var errorText: StringBuilder = new StringBuilder(pipeline.PipelineStateInfo.Reason.Message);
+          // Handle validation error on the MarkdownPath parameter.
+          if (error.GetType().FullName == 'System.Management.Automation.ParameterBindingValidationException' && !String.Compare(ParameterBindingException(error).ParameterName, 'MarkdownPath', true) && String(errorText).StartsWith('Cannot Validate', StringComparison.InvariantCultureIgnoreCase)) {
+            var errorTextSegments: String[] = String(errorText).Split(String[](['. ']), StringSplitOptions.RemoveEmptyEntries);
+            errorText.Clear();
+            errorText.Append(errorTextSegments[0] + '. ');
+            var errorTextEnd: String = errorTextSegments[errorTextSegments.length - 1];
+            var textFormat: String = null;
+            if (errorTextEnd.StartsWith('Supply an argument that matches', StringComparison.InvariantCultureIgnoreCase)) {
+              textFormat = 'The extension of "{0}" is invalid. ".md" is required.';
+            } else if (errorTextEnd.StartsWith('Determine why the validation script failed', StringComparison.InvariantCultureIgnoreCase)) {
+              textFormat = 'The input file "{0}" is not found.';
+            }
+            if (!String.IsNullOrEmpty(textFormat)) {
+              MessageBox.Show(errorText.AppendFormat(textFormat, markdownPath), 'Convert to HTML', MessageBoxButtons.OK, MessageBoxIcon.Error);
+              return;
+            }
           }
-          if (!String.IsNullOrEmpty(textFormat)) {
-            MessageBox.Show(errorText.AppendFormat(textFormat, markdownPath), 'Convert to HTML', MessageBoxButtons.OK, MessageBoxIcon.Error);
-            return;
-          }
+          throw error;
+        })();
         }
-        throw error;
       } finally {
         // Clean up
         runspace.Close();
