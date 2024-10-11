@@ -11,4 +11,5 @@ import System.IO;
 import System.Text;
 import System.Drawing;
 import System.Windows.Forms;
+import System.Threading;
 import Microsoft.Win32;
