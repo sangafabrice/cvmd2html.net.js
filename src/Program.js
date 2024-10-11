@@ -1,6 +1,6 @@
 /**
  * @file Class entry called in index.js.
- * @version 0.0.1.9
+ * @version 0.0.1.10
  */
 
 package cvmd2html {
@@ -47,24 +47,33 @@ package cvmd2html {
       Environment.Exit(exitCode);
     }
 
+    private static var _runspace: Runspace;
+
+    private static var _runspaceIsComplete: Boolean = false;
+
     /// <summary>Execute the target powershell script in a runspace.</summary>
     /// <param name="pwshScriptPath">The powershell path.</param>
     /// <param name="markdownPath">The input markdown path.</param>
     private static function RunRunspace(pwshScriptPath: String, markdownPath: String) {
-      var runspace: Runspace = RunspaceFactory.CreateRunspace();
-      runspace.Open();
-      var pipeline: Pipeline = runspace.CreatePipeline();
+      _runspace = RunspaceFactory.CreateRunspace();
+      _runspace.Open();
+      var pipeline: Pipeline = _runspace.CreatePipeline();
       // Execute the target PowerShell script with the markdown path argument in the runspace.
       pipeline.Commands.AddScript(String.Format('& "{0}" -Markdown "{1}"', pwshScriptPath, markdownPath));
+      pipeline.add_StateChanged(OnStateChanged);
       pipeline.InvokeAsync();
-      while (System.Array.BinarySearch(System.Array([PipelineState.NotStarted, PipelineState.Running, PipelineState.Running]), pipeline.PipelineStateInfo.State) >= 0) {
-        System.Threading.Thread.Sleep(1);
+      while (!_runspaceIsComplete) {
+        System.Threading.Thread.Sleep(1000);
       }
+    }
+
+    /// <summary>The runspace StateChanged event handler.</summary>
+    private static function OnStateChanged(sender: Object, e: PipelineStateEventArgs) {
       try {
-        if (pipeline.PipelineStateInfo.State == PipelineState.Failed) {
+        if (e.PipelineStateInfo.State == PipelineState.Failed) {
         (function() {
-          var error = pipeline.PipelineStateInfo.Reason;
-          var errorText: StringBuilder = new StringBuilder(pipeline.PipelineStateInfo.Reason.Message);
+          var error = e.PipelineStateInfo.Reason;
+          var errorText: StringBuilder = new StringBuilder(e.PipelineStateInfo.Reason.Message);
           // Handle validation error on the MarkdownPath parameter.
           if (error.GetType().FullName == 'System.Management.Automation.ParameterBindingValidationException' && !String.Compare(ParameterBindingException(error).ParameterName, 'MarkdownPath', true) && String(errorText).StartsWith('Cannot Validate', StringComparison.InvariantCultureIgnoreCase)) {
             var errorTextSegments: String[] = String(errorText).Split(String[](['. ']), StringSplitOptions.RemoveEmptyEntries);
@@ -78,7 +87,7 @@ package cvmd2html {
               textFormat = 'The input file "{0}" is not found.';
             }
             if (!String.IsNullOrEmpty(textFormat)) {
-              MessageBox.Show(errorText.AppendFormat(textFormat, markdownPath), 'Convert to HTML', MessageBoxButtons.OK, MessageBoxIcon.Error);
+              MessageBox.Show(errorText.AppendFormat(textFormat, Param.Markdown), 'Convert to HTML', MessageBoxButtons.OK, MessageBoxIcon.Error);
               return;
             }
           }
@@ -86,9 +95,12 @@ package cvmd2html {
         })();
         }
       } finally {
-        // Clean up
-        runspace.Close();
-        runspace.Dispose();
+        if (System.Array.BinarySearch(System.Array([PipelineState.NotStarted, PipelineState.Running, PipelineState.Running]), e.PipelineStateInfo.State) < 0) {
+          // Clean up
+          _runspace.Close();
+          _runspace.Dispose();
+          _runspaceIsComplete = true;
+        }
       }
     }
   }
