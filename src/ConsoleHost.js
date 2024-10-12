@@ -1,6 +1,6 @@
 /**
  * @file returns the shortcut target script runner watcher.
- * @version 0.0.1.3
+ * @version 0.0.1.4
  */
 
 package cvmd2html {
@@ -31,16 +31,22 @@ package cvmd2html {
         CreateNoWindow = true;
         UseShellExecute = false;
       }
-      WaitForExit(Process.Start(pwshStartInfo));
+      WaitForExit(pwshStartInfo);
     }
 
     /// <summary>Observe when the child process exits with or without an error.</summary>
-    /// <param name="pwshExe">The PowerShell Core process or child process.</param>
-    private static function WaitForExit(pwshExe: Process) {
-      var conhostData: ConsoleData = new ConsoleData(MessageBox.GetMethod('Show', BindingFlags(BindingFlags.Static | BindingFlags.NonPublic), null, Type[](["".GetType(), MessageBox.WARNING.GetType()]), new ParameterModifier[2]), MessageBox.WARNING);
-      // Wait for the process to complete.
-      while (!pwshExe.HasExited) {
-        conhostData.HandleOutputDataReceived(pwshExe, pwshExe.StandardOutput.ReadLine());
+    /// <param name="pwshStartInfo">The PowerShell Core process or child process startup configuration.</param>
+    private static function WaitForExit(pwshStartInfo: ProcessStartInfo) {
+      var pwshExe: Process = new Process();
+      pwshExe.StartInfo = pwshStartInfo;
+      // Register the event handlers.
+      pwshExe.EnableRaisingEvents = true;
+      pwshExe.add_OutputDataReceived((new ConsoleData(MessageBox.GetMethod('Show', BindingFlags(BindingFlags.Static | BindingFlags.NonPublic), null, Type[](["".GetType(), MessageBox.WARNING.GetType()]), new ParameterModifier[2]), MessageBox.WARNING)).HandleOutputDataReceived);
+      // Start the child process.
+      with (pwshExe) {
+        Start();
+        BeginOutputReadLine();
+        WaitForExit();
       }
       // When the process terminated with an error.
       if (pwshExe.ExitCode) {
@@ -72,9 +78,8 @@ package cvmd2html {
 
       /// <summary>Show the overwrite prompt that the child process sends. Handle the event when the
       /// PowerShell Core (child) process redirects output to the parent Standard Output stream.</summary>
-      /// <param name="pwshExe">The the sender child process.</param>
-      /// <param name="outData">The output text line sent.</param>
-      function HandleOutputDataReceived(pwshExe: Process, outData: String) {
+      function HandleOutputDataReceived(pwshExe: Object, e: DataReceivedEventArgs) {
+        var outData: String = e.Data;
         if (!String.IsNullOrEmpty(outData)) {
           // Show the message box when the text line is a question.
           // Otherwise, append the text line to the overall message text variable.
