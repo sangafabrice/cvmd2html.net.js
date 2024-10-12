@@ -1,6 +1,6 @@
 /**
  * @file returns the shortcut target script runner watcher.
- * @version 0.0.1.4
+ * @version 0.0.1.5
  */
 
 package cvmd2html {
@@ -42,17 +42,13 @@ package cvmd2html {
       // Register the event handlers.
       pwshExe.EnableRaisingEvents = true;
       pwshExe.add_OutputDataReceived((new ConsoleData(MessageBox.GetMethod('Show', BindingFlags(BindingFlags.Static | BindingFlags.NonPublic), null, Type[](["".GetType(), MessageBox.WARNING.GetType()]), new ParameterModifier[2]), MessageBox.WARNING)).HandleOutputDataReceived);
+      pwshExe.add_ErrorDataReceived(HandleErrorDataReceived);
       // Start the child process.
       with (pwshExe) {
         Start();
         BeginOutputReadLine();
+        BeginErrorReadLine();
         WaitForExit();
-      }
-      // When the process terminated with an error.
-      if (pwshExe.ExitCode) {
-        HandleErrorDataReceived(pwshExe.StandardError.ReadToEnd());
-      }
-      with (pwshExe) {
         Close();
         Dispose();
       }
@@ -97,10 +93,11 @@ package cvmd2html {
       }
     }
 
-    /// <summary>Show the error message that the child process writes on the console host.</summary>
-    /// <param name="errData">The error message text.</param>
-    private static function HandleErrorDataReceived(errData: String) {
-      if (errData.length) {
+    /// <summary>Show the error message that the child process writes on the console host. It handles
+    /// the event when the child process redirects errors to the parent Standard Error stream.</summary>
+    private static function HandleErrorDataReceived(sender: Object, e: DataReceivedEventArgs) {
+      var errData: String = e.Data;
+      if (!String.IsNullOrEmpty(errData)) {
         // Remove the ANSI color tag characters from the error message data text.
         errData = errData.replace(/(\x1B\[31;1m)|(\x1B\[0m)/g, '');
         MessageBox.Show(errData.Substring(errData.IndexOf(':') + 2));
