@@ -1,23 +1,11 @@
 /**
  * @file returns the method to convert from markdown to html.
- * @version 0.0.1.6
+ * @version 0.0.1.8
  */
 
 package cvmd2html {
 
   internal abstract class Converter {
-
-    private static var _htmlLibraryPath: String;
-
-    private static var _jsLibraryPath: String;
-
-    /// <summary>A factory method to construct the Converter object.</summary>
-    /// <param name="htmlLibraryPath">The path string of the html loading the library.</param>
-    /// <param name="jsLibraryPath">The javascript library path.</param>
-    internal static function Create(htmlLibraryPath: String, jsLibraryPath: String) {
-      _htmlLibraryPath = htmlLibraryPath;
-      _jsLibraryPath = jsLibraryPath;
-    }
 
     /// <summary>Convert the content of the markdown file and write it to an html file.</summary>
     /// <param name="markdownPath">The input markdown file path.</param>
@@ -39,7 +27,7 @@ package cvmd2html {
         Navigate('about:blank');
         var document = Document;
       }
-      document.Write(String.Format(GetContent(_htmlLibraryPath), GetContent(_jsLibraryPath)));
+      document.Write(new ResourceManager('Resource', Assembly.GetExecutingAssembly()).GetString('LoadHtml'));
       return document.InvokeScript('convertMarkdown', Object[]([markdownContent]));
     }
 
