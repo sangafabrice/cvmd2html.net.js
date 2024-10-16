@@ -1,6 +1,6 @@
 /**
  * @file Class entry called in index.js.
- * @version 0.0.1.10
+ * @version 0.0.1.11
  */
 
 package cvmd2html {
@@ -11,7 +11,7 @@ package cvmd2html {
 
       /** The application execution. */
       if (Param.Markdown) {
-        RunRunspace(Package.PwshScriptPath, Param.Markdown);
+        RunRunspace(Param.Markdown);
         Quit(0);
       }
 
@@ -47,21 +47,17 @@ package cvmd2html {
       Environment.Exit(exitCode);
     }
 
-    private static var _runspace: Runspace;
-
     private static var _runspaceIsComplete: Boolean = false;
 
     /// <summary>Execute the target powershell script in a runspace.</summary>
-    /// <param name="pwshScriptPath">The powershell path.</param>
     /// <param name="markdownPath">The input markdown path.</param>
-    private static function RunRunspace(pwshScriptPath: String, markdownPath: String) {
-      _runspace = RunspaceFactory.CreateRunspace();
-      _runspace.Open();
-      var powershell: PowerShell = PowerShell.Create();
-      powershell.Runspace = _runspace;
+    private static function RunRunspace(markdownPath: String) {
+      var sessionState: InitialSessionState = InitialSessionState.CreateDefault2();
+      sessionState.Variables.Add(new SessionStateVariableEntry('MarkdownPath', markdownPath, ""));
+      var powershell: PowerShell = PowerShell.Create(sessionState);
       powershell.add_InvocationStateChanged(OnStateChanged);
       // Execute the target PowerShell script with the markdown path argument in the runspace.
-      powershell.AddCommand(pwshScriptPath).AddParameter('Markdown', markdownPath).BeginInvoke();
+      powershell.AddScript(new ResourceManager('Resource', Assembly.GetExecutingAssembly()).GetString('cvmd2html')).BeginInvoke();
       while (!_runspaceIsComplete) {
         Thread.Sleep(1000);
       }
@@ -96,9 +92,6 @@ package cvmd2html {
         }
       } finally {
         if (System.Array.BinarySearch(System.Array([PSInvocationState.NotStarted, PSInvocationState.Running, PSInvocationState.Running]), e.InvocationStateInfo.State) < 0) {
-          // Clean up
-          _runspace.Close();
-          _runspace.Dispose();
           _runspaceIsComplete = true;
         }
       }
