@@ -27,7 +27,7 @@ package cvmd2html {
         Navigate('about:blank');
         var document = Document;
       }
-      document.Write(new ResourceManager('Resource', Assembly.GetExecutingAssembly()).GetString('LoadHtml'));
+      document.Write(Resource.LoadHtml);
       return document.InvokeScript('convertMarkdown', Object[]([markdownContent]));
     }
 
