@@ -9,5 +9,6 @@ import System.Windows.Forms;
 import System.Runtime.InteropServices;
 import System.ComponentModel;
 import System.Security.Principal;
+import System.Resources;
 import Microsoft.Win32;
 import IWshRuntimeLibrary;

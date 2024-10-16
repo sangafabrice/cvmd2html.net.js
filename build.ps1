@@ -32,11 +32,12 @@ Param ()
 
   # Set the windows resources file with the resource compiler.
   & "$PSScriptRoot\rc.exe" /nologo /fo $(($ResFile = "$BinDir\resource.res")) $ResFileRc
+  [void] (& "$PSScriptRoot\ResGen.exe" "$BinDir\rsc\Resource.resx"  $(($TargetEmbeddedResFile = "$BinDir\rsc\Resource.resources")))
 
   # Compile the source code with jsc.
   $EnvPath = $Env:Path
   $Env:Path = "$Env:windir\Microsoft.NET\Framework$(If ([Environment]::Is64BitOperatingSystem) { '64' })\v4.0.30319\;$Env:Path"
-  jsc.exe /nologo /target:$($DebugPreference -eq 'Continue' ? 'exe':'winexe') /win32res:$ResFile /out:$(($ConvertExe = "$BinDir\cvmd2html.exe")) "$SrcDir\AssemblyInfo.js" "$PSScriptRoot\index.js" "$SrcDir\Program.js" "$SrcDir\Converter.js" "$SrcDir\MessageBox.js" "$SrcDir\Package.js" "$SrcDir\Param.js" "$SrcDir\Setup.js"
+  jsc.exe /nologo /target:$($DebugPreference -eq 'Continue' ? 'exe':'winexe') /win32res:$ResFile /res:$TargetEmbeddedResFile /out:$(($ConvertExe = "$BinDir\cvmd2html.exe")) "$SrcDir\AssemblyInfo.js" "$PSScriptRoot\index.js" "$SrcDir\Program.js" "$SrcDir\Converter.js" "$SrcDir\MessageBox.js" "$SrcDir\Package.js" "$SrcDir\Param.js" "$SrcDir\Setup.js"
   $Env:Path = $EnvPath
   
   If ($LASTEXITCODE -eq 0) {
@@ -45,5 +46,5 @@ Param ()
   }
 
   Remove-Item "$BinDir\*.res" -Recurse -ErrorAction SilentlyContinue
-  Remove-Item "$BinDir\rsc\*.ico" -Recurse -ErrorAction SilentlyContinue
+  Remove-Item "$BinDir\rsc" -Recurse -ErrorAction SilentlyContinue
 }
