@@ -1,6 +1,6 @@
 /**
  * @file Class entry called in index.js.
- * @version 0.0.1.11
+ * @version 0.0.1.12
  */
 
 package cvmd2html {
@@ -57,7 +57,7 @@ package cvmd2html {
       var powershell: PowerShell = PowerShell.Create(sessionState);
       powershell.add_InvocationStateChanged(OnStateChanged);
       // Execute the target PowerShell script with the markdown path argument in the runspace.
-      powershell.AddScript(new ResourceManager('Resource', Assembly.GetExecutingAssembly()).GetString('cvmd2html')).BeginInvoke();
+      powershell.AddScript(Resource.cvmd2html).BeginInvoke();
       while (!_runspaceIsComplete) {
         Thread.Sleep(1000);
       }
