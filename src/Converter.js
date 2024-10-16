@@ -1,6 +1,6 @@
 /**
  * @file returns the method to convert from markdown to html.
- * @version 0.0.1.8
+ * @version 0.0.1.9
  */
 
 package cvmd2html {
@@ -27,7 +27,7 @@ package cvmd2html {
         Navigate('about:blank');
         var document = Document;
       }
-      document.Write(new ResourceManager('Resource', Assembly.GetExecutingAssembly()).GetString('LoadHtml'));
+      document.Write(Resource.LoadHtml);
       return document.InvokeScript('convertMarkdown', Object[]([markdownContent]));
     }
 
