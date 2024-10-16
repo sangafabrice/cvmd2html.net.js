@@ -14,15 +14,8 @@ package cvmd2html {
     /// <summary>The project resources directory path.</summary>
     private static var _resourcePath: String = Path.Combine(_root, 'rsc');
   
-    private static var _pwshScriptPath: String = Path.Combine(_resourcePath, 'cvmd2html.ps1');
-  
     private static var _menuIconPath: String = Program.Path;
   
-    /// <summary>The shortcut target powershell script path.</summary>
-    static function get PwshScriptPath(): String {
-      return _pwshScriptPath;
-    }
-
     /// <summary>The shortcut menu icon path.</summary>
     static function get MenuIconPath(): String {
       return _menuIconPath;
