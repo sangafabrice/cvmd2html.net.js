@@ -1,6 +1,6 @@
 /**
  * @file returns the method to convert from markdown to html.
- * @version 0.0.1.10
+ * @version 0.0.1.12
  */
 
 package cvmd2html {
@@ -21,13 +21,7 @@ package cvmd2html {
     /// <param name="markdownContent">The content to convert.</param>
     /// <returns>The output html document content.</returns>
     private static function ConvertToHtml(markdownContent: String): String {
-      // Build the HTML document that will load the showdown.js library.
-      with (new WebBrowser()) {
-        Navigate('about:blank');
-        var document = Document;
-      }
-      document.Write(Resource.LoadHtml);
-      return document.InvokeScript('convertMarkdown', Object[]([markdownContent]));
+      return Markdown.ToHtml(markdownContent);
     }
 
     /// <summary>Returns the output path when it is unique without prompts or when the user
