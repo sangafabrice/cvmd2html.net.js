@@ -1,21 +1,17 @@
 /**
  * @file returns the method to convert from markdown to html.
- * @version 0.0.1.7
+ * @version 0.0.1.10
  */
 
 package cvmd2html {
 
   internal abstract class Converter {
 
-    private static var _htmlLibraryPath: String;
-
     private static var _jsLibraryPath: String;
 
     /// <summary>A factory method to construct the Converter object.</summary>
-    /// <param name="htmlLibraryPath">The path string of the html loading the library.</param>
-    /// <param name="jsLibraryPath">The javascript library path.</param>
-    internal static function Create(htmlLibraryPath: String, jsLibraryPath: String) {
-      _htmlLibraryPath = htmlLibraryPath;
+    /// <param name="jsLibraryPath">The showdown.js library path.</param>
+    internal static function Create(jsLibraryPath: String) {
       _jsLibraryPath = jsLibraryPath;
     }
 
@@ -33,14 +29,16 @@ package cvmd2html {
     /// <param name="markdownContent">The content to convert.</param>
     /// <returns>The output html document content.</returns>
     private static function ConvertToHtml(markdownContent: String): String {
-      // Build the HTML document that will load the showdown.js library.
-      with (new WebBrowser()) {
-        ScriptErrorsSuppressed = true;
-        Navigate('about:blank');
-        var document = Document;
-      }
-      document.Write(String.Format(GetContent(_htmlLibraryPath), _jsLibraryPath));
-      return document.InvokeScript('convertMarkdown', Object[]([markdownContent]));
+      var convertToHtml = 'convertToHtml';
+      return new Engine()
+        .Execute(GetContent(_jsLibraryPath), '')
+        .Execute(String.Format(
+          'let {0} = function (markdownContent) {{' +
+            'return (new showdown.Converter()).makeHtml(markdownContent);' +
+          '}}',
+          convertToHtml
+        ), '')
+        .Evaluate(convertToHtml, '').ToObject().Invoke('', [markdownContent]);
     }
 
     /// <summary>Returns the output path when it is unique without prompts or when the user
