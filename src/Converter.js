@@ -1,22 +1,18 @@
 /**
  * @file returns the method to convert from markdown to html.
- * @version 0.0.1.7
+ * @version 0.0.1.8
  */
 
 package cvmd2html {
 
   internal abstract class Converter {
 
-    private static var _htmlLibraryPath: String;
-
-    private static var _jsLibraryPath: String;
+    private static var _resourcePath: String;
 
     /// <summary>A factory method to construct the Converter object.</summary>
-    /// <param name="htmlLibraryPath">The path string of the html loading the library.</param>
-    /// <param name="jsLibraryPath">The javascript library path.</param>
-    internal static function Create(htmlLibraryPath: String, jsLibraryPath: String) {
-      _htmlLibraryPath = htmlLibraryPath;
-      _jsLibraryPath = jsLibraryPath;
+    /// <param name="resourcePath">The project resources directory path.</param>
+    internal static function Create(resourcePath: String) {
+      _resourcePath = resourcePath;
     }
 
     /// <summary>Convert the content of the markdown file and write it to an html file.</summary>
@@ -33,14 +29,18 @@ package cvmd2html {
     /// <param name="markdownContent">The content to convert.</param>
     /// <returns>The output html document content.</returns>
     private static function ConvertToHtml(markdownContent: String): String {
-      // Build the HTML document that will load the showdown.js library.
-      with (new WebBrowser()) {
-        ScriptErrorsSuppressed = true;
-        Navigate('about:blank');
-        var document = Document;
-      }
-      document.Write(String.Format(GetContent(_htmlLibraryPath), _jsLibraryPath));
-      return document.InvokeScript('convertMarkdown', Object[]([markdownContent]));
+      var jsEngine = new Engine(OptionsExtensions.EnableModules(new Options(), _resourcePath, true));
+      var moduleSpecifier = 'cvmd2html';
+      var convertToHtml = 'convertToHtml';
+      jsEngine.Modules.Add(
+        moduleSpecifier,
+        String.Format(
+          'import snarkdown from "./snarkdown.js";' +
+          'export const {0} = snarkdown;',
+          convertToHtml
+        )
+      );
+      return jsEngine.Modules.Import(moduleSpecifier).Get(convertToHtml).ToObject().Invoke('', [markdownContent]);
     }
 
     /// <summary>Returns the output path when it is unique without prompts or when the user
