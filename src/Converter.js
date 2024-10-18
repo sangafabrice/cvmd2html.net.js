@@ -1,6 +1,6 @@
 /**
  * @file returns the method to convert from markdown to html.
- * @version 0.0.1.12
+ * @version 0.0.1.13
  */
 
 package cvmd2html {
