@@ -4,7 +4,7 @@
 [CmdletBinding()]
 Param ()
 
-& "$PSScriptRoot\nuget.exe" install Markdig -Outputdirectory "$PSScriptRoot\lib" -verbosity quiet
+& "$PSScriptRoot\nuget.exe" install "$PSScriptRoot\packages.config" -Outputdirectory "$PSScriptRoot\lib" -verbosity quiet
 Get-ChildItem "$PSScriptRoot\lib\net46*" -Directory -Recurse |
 Where-Object Parent -Like *\lib |
 ForEach-Object {
