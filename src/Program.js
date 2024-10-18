@@ -11,7 +11,7 @@ package cvmd2html {
 
       /** The application execution. */
       if (Param.Markdown) {
-        Converter.Create(Package.ResourcePath);
+        Converter.Create(Package.JsLibraryPath);
         Converter.ConvertFrom(Param.Markdown);
         Quit(0);
       }

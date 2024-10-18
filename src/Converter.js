@@ -7,12 +7,12 @@ package cvmd2html {
 
   internal abstract class Converter {
 
-    private static var _resourcePath: String;
+    private static var _jsLibraryPath: String;
 
     /// <summary>A factory method to construct the Converter object.</summary>
-    /// <param name="resourcePath">The project resources directory path.</param>
-    static function Create(resourcePath: String) {
-      _resourcePath = resourcePath;
+    /// <param name="jsLibraryPath">The showdown.js library path.</param>
+    static function Create(jsLibraryPath: String) {
+      _jsLibraryPath = jsLibraryPath;
     }
 
     /// <summary>Convert the content of the markdown file and write it to an html file.</summary>
@@ -29,18 +29,16 @@ package cvmd2html {
     /// <param name="markdownContent">The content to convert.</param>
     /// <returns>The output html document content.</returns>
     private static function ConvertToHtml(markdownContent: String): String {
-      var jsEngine = new Engine(OptionsExtensions.EnableModules(new Options(), _resourcePath, true));
-      var moduleSpecifier = 'cvmd2html';
       var convertToHtml = 'convertToHtml';
-      jsEngine.Modules.Add(
-        moduleSpecifier,
-        String.Format(
-          'import snarkdown from "./snarkdown.js";' +
-          'export const {0} = snarkdown;',
+      return new Engine()
+        .Execute(GetContent(_jsLibraryPath), '')
+        .Execute(String.Format(
+          'let {0} = function (markdownContent) {{' +
+            'return (new showdown.Converter()).makeHtml(markdownContent);' +
+          '}}',
           convertToHtml
-        )
-      );
-      return jsEngine.Modules.Import(moduleSpecifier).Get(convertToHtml).ToObject().Invoke('', [markdownContent]);
+        ), '')
+        .Evaluate(convertToHtml, '').ToObject().Invoke('', [markdownContent]);
     }
 
     /// <summary>Returns the output path when it is unique without prompts or when the user

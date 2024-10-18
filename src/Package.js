@@ -10,13 +10,16 @@ package cvmd2html {
     /// <summary>The project root path.</summary>
     private static var _root: String = System.AppContext.BaseDirectory;
   
-    private static var _resourcePath: String = Path.Combine(_root, 'rsc');
-    
-    private static var _menuIconPath: String = Program.Path;
-    
     /// <summary>The project resources directory path.</summary>
-    static function get ResourcePath(): String {
-      return _resourcePath;
+    private static var _resourcePath: String = Path.Combine(_root, 'rsc');
+  
+    private static var _jsLibraryPath: String = Path.Combine(_resourcePath, 'showdown.min.js');
+  
+    private static var _menuIconPath: String = Program.Path;
+
+    /// <summary>The showdown.js library path.</summary>
+    static function get JsLibraryPath(): String {
+      return _jsLibraryPath;
     }
   
     /// <summary>The shortcut menu icon path.</summary>
