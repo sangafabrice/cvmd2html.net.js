@@ -1,15 +1,11 @@
 /**
  * @file the imports and the assembly location.
- * @version 0.0.1.5
+ * @version 0.0.1.6
  */
 
-@cc_on
-
 import System.Runtime.InteropServices;
-@if (@StdRegProvWim)
 import System.Diagnostics;
 import WbemScripting;
-@else
 import System;
 import System.Reflection;
 import System.Reflection.Emit;
@@ -20,4 +16,3 @@ var AssemblyLocation = Assembly.GetExecutingAssembly().Location;
 
 var FileSystem = new FileSystemObjectClass();
 var WshShell = new WshShellClass();
-@end
