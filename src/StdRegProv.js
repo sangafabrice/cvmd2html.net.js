@@ -1,9 +1,9 @@
 /**
  * @file StdRegProv WMI class as inspired by mgmclassgen.exe.
- * @version 0.0.1.2
+ * @version 0.0.1.3
  */
 
-package ROOT.CIMV2 {
+package cvmd2html {
 
   abstract class StdRegProv {
 

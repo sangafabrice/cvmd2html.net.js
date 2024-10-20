@@ -1,4 +1,4 @@
-<#PSScriptInfo .VERSION 0.0.1.6#>
+<#PSScriptInfo .VERSION 0.0.1.7#>
 
 using namespace System.Management.Automation
 [CmdletBinding()]
@@ -24,7 +24,6 @@ Param ()
   }
   New-Item $BinDir -ItemType Directory -ErrorAction SilentlyContinue | Out-Null
   Copy-Item "$PSScriptRoot\rsc" -Destination $BinDir -Recurse
-  Copy-Item $(C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -command '[System.Reflection.Assembly]::LoadWithPartialName("Microsoft.mshtml").Location') -Destination ($MshtmlDllPath = "$BinDir\Microsoft.mshtml.dll") -Force
 
   Function ImportTypeLibrary {
     <#
@@ -41,7 +40,7 @@ Param ()
       [string] $TypeLibPath,
       [string] $Namespace
     )
-    & "$PSScriptRoot\TlbImp.exe" /nologo /silent $TypeLibPath /out:$(($InteropLibPath = "$BinDir\Interop.$Namespace.dll")) /namespace:$Namespace
+    & "$PSScriptRoot\TlbImp.exe" /nologo /silent $TypeLibPath /out:$(($InteropLibPath = "$BinDir\Interop.$Namespace.dll")) /namespace:cvmd2html
     Return $InteropLibPath
   }
 
@@ -64,7 +63,7 @@ Param ()
   # Compile the source code with jsc.
   $EnvPath = $Env:Path
   $Env:Path = "$Env:windir\Microsoft.NET\Framework$(If ([Environment]::Is64BitOperatingSystem) { '64' })\v4.0.30319\;$Env:Path"
-  jsc.exe /nologo /target:$($DebugPreference -eq 'Continue' ? 'exe':'winexe') /win32res:$(CompileResource 'cvmd2html') /reference:$MshtmlDllPath /reference:$(ImportTypeLibrary 'C:\Windows\System32\wbem\wbemdisp.tlb' 'WbemScripting') /reference:$(ImportTypeLibrary 'C:\Windows\System32\wshom.ocx' 'IWshRuntimeLibrary') /reference:$(ImportTypeLibrary 'C:\Program Files\Common Files\System\ado\msado60.tlb' 'ADODB') /out:$(($ConvertExe = "$BinDir\cvmd2html.exe")) "$(($SrcDir = "$PSScriptRoot\src"))\AssemblyInfo.js" "$SrcDir\converter.js" "$SrcDir\msgbox.js" "$SrcDir\package.js" "$SrcDir\parameters.js" "$PSScriptRoot\index.js" "$SrcDir\StdRegProv.js" "$SrcDir\setup.js" "$SrcDir\utils.js"
+  jsc.exe /nologo /target:$($DebugPreference -eq 'Continue' ? 'exe':'winexe') /win32res:$(CompileResource 'cvmd2html') /reference:$(ImportTypeLibrary 'C:\Windows\System32\mshtml.tlb' 'mshtml') /reference:$(ImportTypeLibrary 'C:\Windows\System32\wbem\wbemdisp.tlb' 'WbemScripting') /reference:$(ImportTypeLibrary 'C:\Windows\System32\wshom.ocx' 'IWshRuntimeLibrary') /reference:$(ImportTypeLibrary 'C:\Program Files\Common Files\System\ado\msado60.tlb' 'ADODB') /out:$(($ConvertExe = "$BinDir\cvmd2html.exe")) "$(($SrcDir = "$PSScriptRoot\src"))\AssemblyInfo.js" "$SrcDir\converter.js" "$SrcDir\msgbox.js" "$SrcDir\package.js" "$SrcDir\parameters.js" "$PSScriptRoot\index.js" "$SrcDir\StdRegProv.js" "$SrcDir\setup.js" "$SrcDir\utils.js"
   $Env:Path = $EnvPath
 
   If ($LASTEXITCODE -eq 0) {

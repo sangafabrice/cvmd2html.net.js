@@ -1,18 +1,14 @@
 /**
  * @file the imports and the assembly location.
- * @version 0.0.1.8
+ * @version 0.0.1.9
  */
 
 import System.Runtime.InteropServices;
 import System.Diagnostics;
-import WbemScripting;
 import System;
 import System.Reflection;
 import System.Reflection.Emit;
-import IWshRuntimeLibrary;
-import mshtml;
-import ADODB;
-import ROOT.CIMV2;
+import cvmd2html;
 
 var AssemblyLocation = Assembly.GetExecutingAssembly().Location;
 
