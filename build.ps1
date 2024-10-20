@@ -1,4 +1,4 @@
-<#PSScriptInfo .VERSION 0.0.1.2#>
+<#PSScriptInfo .VERSION 0.0.1.3#>
 
 using namespace System.Management.Automation
 [CmdletBinding()]
@@ -25,9 +25,6 @@ Param ()
   New-Item $BinDir -ItemType Directory -ErrorAction SilentlyContinue | Out-Null
   Copy-Item "$PSScriptRoot\rsc" -Destination $BinDir -Recurse
 
-  $SrcDir = "$PSScriptRoot\src"
-  $AssemblyInfoJS = "$SrcDir\AssemblyInfo.js"
-
   Function ImportTypeLibrary {
     <#
     .DESCRIPTION
@@ -47,23 +44,6 @@ Param ()
     Return $InteropLibPath
   }
 
-  Function ImportWmiClass {
-    <#
-    .DESCRIPTION
-    This function compiles a WMI Class' source code to dll libraries.
-    .NOTES
-    This function must be called after initializing $SWbemDllPath, $SrcDir and $AssemblyInfoJS.
-    It must also be called after the jsc.exe path is added to PATH environment variable.
-    .PARAMETER ClassName
-    The specified WMI class name.
-    #>
-    Param (
-      [string] $ClassName
-    )
-    jsc.exe /nologo /target:library /win32res:$(CompileResource $ClassName) /reference:$SWbemDllPath /out:$(($WmiClassPath = "$BinDir\$ClassName.dll")) /define:"$($ClassName.Replace('.', ''))Wim" $AssemblyInfoJS "$SrcDir\$ClassName.js"
-    Return $WmiClassPath
-  }
-
   Function CompileResource {
     <#
     .DESCRIPTION
@@ -76,14 +56,14 @@ Param ()
     Param (
       [string] $FileBaseName
     )
-    & "$PSScriptRoot\rc.exe" /nologo /fo $(($ResourceFile = "$BinDir\$FileBaseName.res")) /d $($FileBaseName.Replace('.', '').ToUpper()) "$PSScriptRoot\resource.rc"
+    & "$PSScriptRoot\rc.exe" /nologo /fo $(($ResourceFile = "$BinDir\$FileBaseName.res")) "$PSScriptRoot\resource.rc"
     Return $ResourceFile
   }
 
   # Compile the source code with jsc.
   $EnvPath = $Env:Path
   $Env:Path = "$Env:windir\Microsoft.NET\Framework$(If ([Environment]::Is64BitOperatingSystem) { '64' })\v4.0.30319\;$Env:Path"
-  jsc.exe /nologo /target:$($DebugPreference -eq 'Continue' ? 'exe':'winexe') /win32res:$(CompileResource 'cvmd2html') /reference:$(($SWbemDllPath = ImportTypeLibrary 'C:\Windows\System32\wbem\wbemdisp.tlb' 'WbemScripting')) /reference:$(ImportWmiClass 'StdRegProv') /reference:$(ImportTypeLibrary 'C:\Windows\System32\wshom.ocx' 'IWshRuntimeLibrary') /out:$(($ConvertExe = "$BinDir\cvmd2html.exe")) $AssemblyInfoJS "$SrcDir\errorLog.js" "$SrcDir\package.js" "$SrcDir\parameters.js" "$PSScriptRoot\index.js" "$SrcDir\setup.js" "$SrcDir\utils.js"
+  jsc.exe /nologo /target:$($DebugPreference -eq 'Continue' ? 'exe':'winexe') /win32res:$(CompileResource 'cvmd2html') /reference:$(ImportTypeLibrary 'C:\Windows\System32\wbem\wbemdisp.tlb' 'WbemScripting') /reference:$(ImportTypeLibrary 'C:\Windows\System32\wshom.ocx' 'IWshRuntimeLibrary') /out:$(($ConvertExe = "$BinDir\cvmd2html.exe")) "$(($SrcDir = "$PSScriptRoot\src"))\AssemblyInfo.js" "$SrcDir\errorLog.js" "$SrcDir\package.js" "$SrcDir\parameters.js" "$PSScriptRoot\index.js" "$SrcDir\StdRegProv.js" "$SrcDir\setup.js" "$SrcDir\utils.js"
   $Env:Path = $EnvPath
 
   If ($LASTEXITCODE -eq 0) {

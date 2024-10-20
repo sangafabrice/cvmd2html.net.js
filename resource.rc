@@ -1,9 +1,7 @@
 ﻿#include "version.h"
 
 
-#ifdef CVMD2HTML
 103 ICON "menu.ico"
-#endif
 
 
 1 VERSIONINFO
@@ -21,11 +19,7 @@ BLOCK "StringFileInfo"
     VALUE "LegalCopyright", "© 2024 sangafabrice"
     VALUE "CompanyName", "sangafabrice"
     VALUE "FileVersion", VER_VERSION_STR
-#ifdef CVMD2HTML
     VALUE "FileDescription", "CvMd2Html"
-#else
-    VALUE "FileDescription", "StdRegProv"
-#endif
   }
 }
 

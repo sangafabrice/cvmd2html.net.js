@@ -6,6 +6,7 @@
 
 /** The application execution. */
 if (Param.Markdown) {
+  var WINDOW_STYLE_HIDDEN = 0;
   var WAIT_ON_RETURN = true;
   Package.IconLink.Create(Param.Markdown);
   if (WshShell.Run(format('C:\\Windows\\System32\\cmd.exe /d /c ""{0}" 2> "{1}""', [Package.IconLink.Path, ErrorLog.Path]), WshWindowStyle.WshHide, WAIT_ON_RETURN)) {

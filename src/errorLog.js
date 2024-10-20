@@ -16,7 +16,8 @@ var ErrorLog = {
    */
   Read: function () {
     try {
-      var txtStream = FileSystem.OpenTextFile(this.Path, IOMode.ForReading);
+      var FOR_READING = 1;
+      var txtStream = FileSystem.OpenTextFile(this.Path, FOR_READING);
       // Read the error message and remove the ANSI escaped character for red coloring.
       var errorMessage = txtStream.ReadAll().replace(/(\x1B\[31;1m)|(\x1B\[0m)/g, '');
       if (errorMessage.length) {
