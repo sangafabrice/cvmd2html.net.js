@@ -1,4 +1,4 @@
-<#PSScriptInfo .VERSION 0.0.1.9#>
+<#PSScriptInfo .VERSION 0.0.1.10#>
 
 using namespace System.Management.Automation
 [CmdletBinding()]
@@ -30,12 +30,19 @@ Param ()
   & "$PSScriptRoot\rc.exe" /nologo /fo $(($ResFile = "$BinDir\resource.res")) "$PSScriptRoot\resource.rc"
 
   # Compile the source code with jsc.
-  $EnvPath = $Env:Path
-  $Env:Path = "$Env:windir\Microsoft.NET\Framework$(If ([Environment]::Is64BitOperatingSystem) { '64' })\v4.0.30319\;$Env:Path"
-  jsc.exe /nologo /target:$($DebugPreference -eq 'Continue' ? 'exe':'winexe') /win32res:$ResFile /reference:"$LibDir\Markdig.dll" /reference:"$LibDir\System.Buffers.dll" /reference:"$LibDir\System.Memory.dll" /reference:"$LibDir\System.Numerics.Vectors.dll" /reference:"$LibDir\System.Runtime.CompilerServices.Unsafe.dll" /reference:System.Numerics.dll /out:$(($ConvertExe = "$BinDir\cvmd2html.exe")) "$(($SrcDir = "$PSScriptRoot\src"))\AssemblyInfo.js" "$PSScriptRoot\index.js" "$SrcDir\Program.js" "$SrcDir\Converter.js" "$SrcDir\MessageBox.js" "$SrcDir\Package.js" "$SrcDir\Param.js" "$SrcDir\Setup.js"
-  $Env:Path = $EnvPath
+  $FrameworkRoot = "$Env:windir\Microsoft.NET\Framework$(If ([Environment]::Is64BitOperatingSystem) { '64' })\v4.0.30319\"
+  $process = Start-Process -FilePath "$FrameworkRoot\jsc.exe" -ArgumentList @(
+    "/nologo /target:$($DebugPreference -eq 'Continue' ? 'exe':'winexe') /win32res:$ResFile"
+    Get-ChildItem @(
+      "$LibDir\*"
+      'PresentationFramework','WindowsBase','PresentationCore' | ForEach-Object { "$FrameworkRoot\WPF\${_}.dll" }
+    ) | ForEach-Object { '/reference:"{0}"' -f $_.FullName }
+    '/reference:System.Xaml.dll /reference:System.Numerics.dll'
+    "/out:$(($ConvertExe = "$BinDir\cvmd2html.exe"))"
+    Get-ChildItem "$PSScriptRoot\src\*","$PSScriptRoot\index.js" | ForEach-Object { '"{0}"' -f $_.FullName }
+  ) -Wait -NoNewWindow -PassThru
 
-  If ($LASTEXITCODE -eq 0) {
+  If ($process.ExitCode -eq 0) {
     Write-Host "Output file $ConvertExe written." @HostColorArgs
     (Get-Item $ConvertExe).VersionInfo | Format-List * -Force
   }
