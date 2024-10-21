@@ -52,12 +52,10 @@ package cvmd2html {
     /// <summary>Execute the target powershell script in a runspace.</summary>
     /// <param name="markdownPath">The input markdown path.</param>
     private static function RunRunspace(markdownPath: String) {
-      var sessionState: InitialSessionState = InitialSessionState.CreateDefault2();
-      sessionState.Variables.Add(new SessionStateVariableEntry('MarkdownPath', markdownPath, ""));
-      var powershell: PowerShell = PowerShell.Create(sessionState);
+      var powershell: PowerShell = PowerShell.Create(InitialSessionState.CreateDefault2());
       powershell.add_InvocationStateChanged(OnStateChanged);
       // Execute the target PowerShell script with the markdown path argument in the runspace.
-      powershell.AddScript(Resource.cvmd2html).BeginInvoke();
+      powershell.AddScript(Resource.cvmd2html).AddStatement().AddCommand('Convert-MarkdownToHtml').AddParameter('Markdown', markdownPath).BeginInvoke();
       while (!_runspaceIsComplete) {
         Thread.Sleep(1000);
       }
@@ -66,7 +64,7 @@ package cvmd2html {
     /// <summary>The runspace StateChanged event handler.</summary>
     private static function OnStateChanged(sender: Object, e: PSInvocationStateChangedEventArgs) {
       try {
-        if (e.InvocationStateInfo.State == PSInvocationState.Failed) {
+        if (e.InvocationStateInfo.State == PSInvocationState.Failed && !_runspaceIsComplete) {
         (function() {
           var error = e.InvocationStateInfo.Reason;
           var errorText: StringBuilder = new StringBuilder(e.InvocationStateInfo.Reason.Message);
