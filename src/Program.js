@@ -1,6 +1,6 @@
 /**
  * @file Class entry called in index.js.
- * @version 0.0.1.10
+ * @version 0.0.1.11
  */
 
 package cvmd2html {
@@ -59,7 +59,10 @@ package cvmd2html {
       _runspace.Open();
       var pipeline: Pipeline = _runspace.CreatePipeline();
       // Execute the target PowerShell script with the markdown path argument in the runspace.
-      pipeline.Commands.AddScript(String.Format('& "{0}" -Markdown "{1}"', pwshScriptPath, markdownPath));
+      pipeline.Commands.AddScript('$input | ForEach-Object { try { & $_[0] -Markdown $_[1] } catch { throw $_.Exception } }');
+      var pipWriter: PipelineWriter = pipeline.Input;
+      pipWriter.Write([pwshScriptPath, markdownPath]);
+      pipWriter.Close();
       pipeline.add_StateChanged(OnStateChanged);
       pipeline.InvokeAsync();
       while (!_runspaceIsComplete) {
