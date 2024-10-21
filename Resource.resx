@@ -59,7 +59,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="cvmd2html" xml:space="preserve">
-    <value>Try { &amp; {
+    <value>Function Convert-MarkdownToHtml {
 [CmdletBinding()]
 Param (
   [Parameter(Mandatory, Position=0)]
@@ -111,6 +111,6 @@ Try {
 } Catch {
   ShowMessageBox $_.Exception.Message
 }
-} -Markdown $MarkdownPath } Catch { Throw $_.Exception }</value>
+}</value>
   </data>
 </root>
