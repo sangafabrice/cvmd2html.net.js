@@ -1,4 +1,4 @@
-<#PSScriptInfo .VERSION 0.0.1.1#>
+<#PSScriptInfo .VERSION 0.0.1.2#>
 
 [CmdletBinding()]
 Param ()
@@ -13,4 +13,8 @@ Param ()
     Copy-Item (Get-ChildItem $_ -File -Filter *.dll).FullName .\lib\
   }
   Get-ChildItem "$LibDir\*" -Directory | Remove-Item -Recurse -Force
+  'PresentationFramework','WindowsBase','PresentationCore' |
+  ForEach-Object {
+    Copy-Item "$Env:windir\Microsoft.NET\Framework$(If ([Environment]::Is64BitOperatingSystem) { '64' })\v4.0.30319\WPF\${_}.dll" $LibDir
+  }
 }

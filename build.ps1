@@ -1,4 +1,4 @@
-<#PSScriptInfo .VERSION 0.0.1.13#>
+<#PSScriptInfo .VERSION 0.0.1.14#>
 
 #Requires -Version 5.1
 #Requires -PSEdition Desktop
@@ -42,11 +42,7 @@ Param ()
     CompilerOptions = "/target:$(If ($DebugPreference -eq 'Inquire') { 'exe' } Else { 'winexe' })"
   }
   $CompilerParams.ReferencedAssemblies.AddRange(@(
-    Get-ChildItem @(
-      "$LibDir\*"
-      'PresentationFramework','WindowsBase','PresentationCore' |
-      ForEach-Object { "$Env:windir\Microsoft.NET\Framework$(If ([Environment]::Is64BitOperatingSystem) { '64' })\v4.0.30319\WPF\${_}.dll" }
-    ) | ForEach-Object { $_.FullName }
+    Get-ChildItem "$LibDir\*" | ForEach-Object { $_.FullName }
     'System.Xaml.dll','System.Numerics.dll'
   ))
   $Results = [JScriptCodeProvider]::new().CompileAssemblyFromFile($CompilerParams, [string[]](Get-ChildItem "$PSScriptRoot\src\*","$PSScriptRoot\index.js").FullName)
