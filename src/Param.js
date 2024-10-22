@@ -1,6 +1,6 @@
 /**
  * @file returns the parsed parameters.
- * @version 0.0.1.3
+ * @version 0.0.1.4
  */
 
 package cvmd2html {
@@ -58,6 +58,10 @@ package cvmd2html {
           case '/unset':
             return {
               Unset: true
+            }
+          default:
+            return {
+              Markdown: arg
             }
         }
       } else if (args.length == 1) {
