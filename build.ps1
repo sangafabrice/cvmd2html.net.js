@@ -1,4 +1,4 @@
-<#PSScriptInfo .VERSION 0.0.1.11#>
+<#PSScriptInfo .VERSION 0.0.1.12#>
 
 [CmdletBinding()]
 Param ()
@@ -46,11 +46,17 @@ Start-Job {
     ) | ForEach-Object { $_.FullName }
     'System.Xaml.dll','System.Numerics.dll'
   ))
-  Add-Type -Path "$ScriptRoot\src\*","$ScriptRoot\index.js" -CompilerParameters $CompilerParams
+  Add-Type -AssemblyName Microsoft.Jscript
+  $Results = [Microsoft.Jscript.JScriptCodeProvider]::new().CompileAssemblyFromFile($CompilerParams, [string[]](Get-ChildItem "$ScriptRoot\src\*","$ScriptRoot\index.js").FullName)
 
-  If (0 -eq $Error.Count) {
+  If ($Results.Errors.Count -eq 0 -and 0 -eq $Error.Count) {
     Write-Host "Output file $ConvertExe written." @HostColorArgs
     (Get-Item $ConvertExe).VersionInfo | Format-List * -Force
+  } ElseIf ($Results.Errors.Count -ne 0) {
+    $HostColorArgs.BackgroundColor = 'Red'
+    ForEach ($ErrResult in $Results.Errors) {
+      Write-Host ('Error {1}: {2}' -f $ErrResult.ErrorNumber,$ErrResult.ErrorText) @HostColorArgs
+    }
   }
 
   Remove-Item "$BinDir\*.res" -Recurse -ErrorAction SilentlyContinue
