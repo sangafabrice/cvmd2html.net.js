@@ -1,11 +1,14 @@
-<#PSScriptInfo .VERSION 0.0.1.12#>
+<#PSScriptInfo .VERSION 0.0.1.13#>
 
+#Requires -Version 5.1
+#Requires -PSEdition Desktop
+using namespace System.Management.Automation
+using namespace Microsoft.Jscript
+using assembly Microsoft.Jscript
 [CmdletBinding()]
 Param ()
 
-Start-Job {
-  $ScriptRoot = $using:PSScriptRoot
-
+& {
   $HostColorArgs = @{
     ForegroundColor = 'Black'
     BackgroundColor = 'Green'
@@ -13,8 +16,8 @@ Start-Job {
   }
 
   Try {
-    Remove-Item ($BinDir = "$ScriptRoot\bin") -Recurse -ErrorAction Stop
-  } Catch [System.Management.Automation.ItemNotFoundException] {
+    Remove-Item ($BinDir = "$PSScriptRoot\bin") -Recurse -ErrorAction Stop
+  } Catch [ItemNotFoundException] {
     Write-Host $_.Exception.Message @HostColorArgs
     Write-Host
   } Catch {
@@ -24,11 +27,11 @@ Start-Job {
     Return
   }
   New-Item $BinDir -ItemType Directory -ErrorAction SilentlyContinue | Out-Null
-  Copy-Item "$ScriptRoot\App.config" -Destination "$BinDir\cvmd2html.exe.config" -Recurse
-  Copy-Item "$(($LibDir = "$ScriptRoot\lib"))\*" -Destination $BinDir -Recurse
+  Copy-Item "$PSScriptRoot\App.config" -Destination "$BinDir\cvmd2html.exe.config" -Recurse
+  Copy-Item "$(($LibDir = "$PSScriptRoot\lib"))\*" -Destination $BinDir -Recurse
 
   # Set the windows resources file with the resource compiler.
-  & "$ScriptRoot\rc.exe" /nologo /fo $(($ResFile = "$BinDir\resource.res")) "$ScriptRoot\resource.rc"
+  & "$PSScriptRoot\rc.exe" /nologo /fo $(($ResFile = "$BinDir\resource.res")) "$PSScriptRoot\resource.rc"
 
   # Compile the source code with jsc.
   $CompilerParams = [System.CodeDom.Compiler.CompilerParameters] @{
@@ -36,7 +39,7 @@ Start-Job {
     GenerateInMemory = $False
     GenerateExecutable = $True
     Win32Resource = $ResFile
-    CompilerOptions = "/target:$(If ($args[0].Value -eq 'Continue') { 'exe' } Else { 'winexe' })"
+    CompilerOptions = "/target:$(If ($DebugPreference -eq 'Inquire') { 'exe' } Else { 'winexe' })"
   }
   $CompilerParams.ReferencedAssemblies.AddRange(@(
     Get-ChildItem @(
@@ -46,8 +49,7 @@ Start-Job {
     ) | ForEach-Object { $_.FullName }
     'System.Xaml.dll','System.Numerics.dll'
   ))
-  Add-Type -AssemblyName Microsoft.Jscript
-  $Results = [Microsoft.Jscript.JScriptCodeProvider]::new().CompileAssemblyFromFile($CompilerParams, [string[]](Get-ChildItem "$ScriptRoot\src\*","$ScriptRoot\index.js").FullName)
+  $Results = [JScriptCodeProvider]::new().CompileAssemblyFromFile($CompilerParams, [string[]](Get-ChildItem "$PSScriptRoot\src\*","$PSScriptRoot\index.js").FullName)
 
   If ($Results.Errors.Count -eq 0 -and 0 -eq $Error.Count) {
     Write-Host "Output file $ConvertExe written." @HostColorArgs
@@ -60,4 +62,4 @@ Start-Job {
   }
 
   Remove-Item "$BinDir\*.res" -Recurse -ErrorAction SilentlyContinue
-} -ArgumentList $DebugPreference -PSVersion 5.1 | Receive-Job -Wait -AutoRemoveJob
+}

@@ -1,5 +1,6 @@
-<#PSScriptInfo .VERSION 0.0.1.7#>
+<#PSScriptInfo .VERSION 0.0.1.8#>
 
+#Requires -Version 6.1
 [CmdletBinding()]
 Param ()
 
