@@ -1,2 +1,2 @@
-#define VER_VERSION 0,0,1,62
-#define VER_VERSION_STR "0.0.1.62"
+#define VER_VERSION 1,0,0,62
+#define VER_VERSION_STR "1.0.0.62"
