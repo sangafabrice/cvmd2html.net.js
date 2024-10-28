@@ -3,13 +3,13 @@
     <VersionMajor>1</VersionMajor>
     <VersionMinor>0</VersionMinor>
     <VersionBuild>0</VersionBuild>
-    <VersionRevision>63</VersionRevision>
+    <VersionRevision>70</VersionRevision>
     <OutputType Condition=" '$(OutputType)' == '' ">WinExe</OutputType>
     <AssemblyName>cvmd2html</AssemblyName>
     <OutputPath>bin</OutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <SrcFiles Include="src\*.js" />
+    <SrcFiles Include="src\*" />
     <LibFiles Include="lib\*.dll" />
     <AppConfigFile Include="App.config" />
     <ResFile Include="resource.rc">
